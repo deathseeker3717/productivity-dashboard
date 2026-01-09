@@ -5,7 +5,7 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import { useUser } from '../context/UserContext';
+import { usePreferences } from '../context/PreferencesContext';
 import './NotificationPanel.css';
 
 // Icons
@@ -58,7 +58,7 @@ function NotificationPanel() {
         markAllAsRead,
         deleteNotification,
         clearNotifications
-    } = useUser();
+    } = usePreferences();
 
     const panelRef = useRef(null);
 

@@ -5,12 +5,15 @@ import './index.css'
 import './design-system.css'
 import { AppProvider } from './context/AppContext.jsx'
 import { UserProvider } from './context/UserContext.jsx'
+import { PreferencesProvider } from './context/PreferencesContext.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
         <AppProvider>
             <UserProvider>
-                <App />
+                <PreferencesProvider>
+                    <App />
+                </PreferencesProvider>
             </UserProvider>
         </AppProvider>
     </React.StrictMode>,

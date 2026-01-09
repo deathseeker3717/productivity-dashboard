@@ -7,7 +7,7 @@
 
 import React, { useMemo } from 'react';
 import { useApp } from '../context/AppContext';
-import { Icons } from '../App';
+import { Icons } from './Icons';
 import './Performance.css';
 
 function Performance() {

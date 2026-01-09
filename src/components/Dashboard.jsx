@@ -7,7 +7,7 @@
 
 import React, { Suspense, lazy } from 'react';
 import { useApp } from '../context/AppContext';
-import { Icons } from '../App';
+import { Icons } from './Icons';
 import TaskList from './TaskList';
 import Calendar from './Calendar';
 import Performance from './Performance';
@@ -22,6 +22,7 @@ import { useUser } from '../context/UserContext';
 
 function Dashboard() {
     const { user } = useUser();
+    const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
     const {
         currentDate,
         todayProgress,
@@ -45,7 +46,7 @@ function Dashboard() {
     // Greeting logic
     const getGreeting = () => {
         const hour = new Date().getHours();
-        const firstName = user.name.split(' ')[0]; // Use first name for friendlier vibe
+        const firstName = userName.split(' ')[0];
 
         // Early Morning (5 AM - 7 AM)
         if (hour >= 5 && hour < 7) return `Rise and Shine, ${firstName} ☀️`;

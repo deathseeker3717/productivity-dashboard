@@ -2,10 +2,13 @@
  * UserProfile.jsx - User Profile Dropdown
  * 
  * Shows user info and quick actions when avatar is clicked.
+ * Uses Supabase for logout.
  */
 
 import React, { useEffect, useRef } from 'react';
+import { supabase } from '../supabase';
 import { useUser } from '../context/UserContext';
+import { usePreferences } from '../context/PreferencesContext';
 import { useApp } from '../context/AppContext';
 import './UserProfile.css';
 
@@ -47,16 +50,21 @@ const FireIcon = () => (
 );
 
 function UserProfile() {
-    const {
-        user,
-        showProfilePanel,
-        setShowProfilePanel,
-        resetAll,
-        logout
-    } = useUser();
-
+    const { user } = useUser();
+    const { showProfilePanel, setShowProfilePanel } = usePreferences();
     const { setActiveView, calculateStreak, monthProgress } = useApp();
     const panelRef = useRef(null);
+
+    // Derive display values from Supabase user
+    const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
+    const userEmail = user?.email || '';
+    const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+    const handleLogout = async () => {
+        if (confirm('Sign out?')) {
+            await supabase.auth.signOut();
+        }
+    };
 
     // Close on outside click
     useEffect(() => {
@@ -85,11 +93,11 @@ function UserProfile() {
             {/* User Info */}
             <div className="profile-header">
                 <div className="profile-avatar">
-                    {user.initials}
+                    {userInitials}
                 </div>
                 <div className="profile-info">
-                    <h4>{user.name}</h4>
-                    {user.email && <p>{user.email}</p>}
+                    <h4>{userName}</h4>
+                    {userEmail && <p>{userEmail}</p>}
                 </div>
             </div>
 
@@ -121,12 +129,7 @@ function UserProfile() {
 
             {/* Footer */}
             <div className="profile-footer">
-                <button className="logout-btn" onClick={() => {
-                    if (confirm('Sign out?')) {
-                        logout();
-                        setShowProfilePanel(false);
-                    }
-                }}>
+                <button className="logout-btn" onClick={handleLogout}>
                     <LogoutIcon />
                     <span>Sign Out</span>
                 </button>

@@ -7,7 +7,7 @@
 
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Icons } from '../App';
+import { Icons } from './Icons';
 import './TaskList.css';
 
 function TaskList() {

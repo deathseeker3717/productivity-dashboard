@@ -10,8 +10,8 @@
 
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { useUser } from '../context/UserContext';
-import { Icons } from '../App';
+import { usePreferences } from '../context/PreferencesContext';
+import { Icons } from './Icons';
 import './MonthSetup.css';
 
 function MonthSetup() {
@@ -24,7 +24,7 @@ function MonthSetup() {
         CATEGORIES
     } = useApp();
 
-    const { addNotification } = useUser();
+    const { addNotification } = usePreferences();
 
     const [step, setStep] = useState(1);
     const [goals, setGoals] = useState(['']);

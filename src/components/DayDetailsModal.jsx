@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Icons } from '../App';
+import { Icons } from './Icons';
 import './DayDetailsModal.css';
 
 function DayDetailsModal({ date, onClose }) {

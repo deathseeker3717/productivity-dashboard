@@ -11,7 +11,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
-import { Icons } from '../App';
+import { Icons } from './Icons';
 import {
     Chart as ChartJS,
     CategoryScale,

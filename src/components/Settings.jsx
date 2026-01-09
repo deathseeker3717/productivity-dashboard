@@ -10,6 +10,7 @@
 
 import React, { useState, useRef } from 'react';
 import { useUser } from '../context/UserContext';
+import { usePreferences } from '../context/PreferencesContext';
 import { useApp } from '../context/AppContext';
 import './Settings.css';
 
@@ -95,8 +96,14 @@ function Toggle({ checked, onChange, label }) {
 }
 
 function Settings() {
-    const { user, updateUser, settings, updateSettings, updateNotificationSettings, resetAll } = useUser();
+    const { user } = useUser();
+    const { settings, updateSettings, updateNotificationSettings, resetAll } = usePreferences();
     const { exportJSON, exportCSV, setShowMonthSetup } = useApp();
+
+    // Derive user info from Supabase user
+    const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
+    const userEmail = user?.email || '';
+    const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
     const [activeSection, setActiveSection] = useState('profile');
     const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -106,16 +113,6 @@ function Settings() {
     const showSaveMessage = (message) => {
         setSaveMessage(message);
         setTimeout(() => setSaveMessage(''), 2000);
-    };
-
-    const handleNameChange = (e) => {
-        updateUser({ name: e.target.value });
-        showSaveMessage('Profile updated');
-    };
-
-    const handleEmailChange = (e) => {
-        updateUser({ email: e.target.value });
-        showSaveMessage('Email updated');
     };
 
     const handleImport = (e) => {
@@ -181,25 +178,26 @@ function Settings() {
                     {activeSection === 'profile' && (
                         <section className="settings-section animate-fadeIn">
                             <h2>Profile</h2>
-                            <p className="section-description">Manage your personal information</p>
+                            <p className="section-description">Your account information (managed by Supabase)</p>
 
                             <div className="settings-group">
                                 <div className="form-field">
                                     <label>Display Name</label>
                                     <input
                                         type="text"
-                                        value={user.name}
-                                        onChange={handleNameChange}
+                                        value={userName}
+                                        disabled
                                         placeholder="Your name"
                                     />
+                                    <p className="field-hint">Name is synced from your Supabase account</p>
                                 </div>
 
                                 <div className="form-field">
                                     <label>Email</label>
                                     <input
                                         type="email"
-                                        value={user.email}
-                                        onChange={handleEmailChange}
+                                        value={userEmail}
+                                        disabled
                                         placeholder="your@email.com"
                                     />
                                 </div>
@@ -208,7 +206,7 @@ function Settings() {
                                     <label>Avatar</label>
                                     <div className="avatar-preview">
                                         <div className="avatar-circle">
-                                            {user.initials}
+                                            {userInitials}
                                         </div>
                                         <p className="avatar-hint">Avatar is generated from your initials</p>
                                     </div>
