@@ -14,8 +14,13 @@ export const UserProvider = ({ children }) => {
         });
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            (_event, session) => {
+            (event, session) => {
                 setUser(session?.user || null);
+
+                // Redirect to dashboard after OAuth login
+                if (event === "SIGNED_IN") {
+                    window.location.href = "/";
+                }
             }
         );
 
