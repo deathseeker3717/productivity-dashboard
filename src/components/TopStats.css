@@ -1,0 +1,473 @@
+/**
+ * TopStats.css - Animated Stats Bar
+ * 
+ * Animated progress rings and sparklines.
+ */
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes ringProgress {
+    from {
+        stroke-dasharray: 0 100;
+    }
+}
+
+@keyframes sparkGrow {
+    from {
+        height: 0;
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* ========================================
+   TOP STATS BAR
+   ======================================== */
+
+.top-stats {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    padding: 16px 0;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    animation: fadeInSlide 0.5s ease-out;
+}
+
+.stat-widget {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: fadeInSlide 0.5s ease-out backwards;
+}
+
+.stat-widget:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.stat-widget:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.stat-widget:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.stat-widget:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+/* Progress Ring - Animated */
+.progress-ring {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    transition: transform 0.3s ease;
+}
+
+.progress-ring:hover {
+    transform: scale(1.1);
+}
+
+.circular-chart {
+    display: block;
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+}
+
+.circle-bg {
+    fill: none;
+    stroke: var(--border);
+    stroke-width: 3;
+}
+
+.circle {
+    fill: none;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke: var(--text-muted);
+    transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: ringProgress 1s ease-out backwards;
+}
+
+.progress-ring.complete .circle {
+    stroke: #10b981;
+}
+
+.progress-ring.partial .circle {
+    stroke: #f59e0b;
+}
+
+.progress-ring.missed .circle {
+    stroke: #ef4444;
+}
+
+.ring-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.stat-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.stat-sublabel {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    transition: transform 0.2s ease;
+}
+
+.stat-widget:hover .stat-value {
+    transform: scale(1.05);
+}
+
+/* Streak Widget - Duolingo Style */
+.streak-widget {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(255, 150, 0, 0.05) 100%);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 107, 0, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.streak-widget:hover {
+    background: linear-gradient(135deg, rgba(255, 107, 0, 0.2) 0%, rgba(255, 150, 0, 0.1) 100%);
+    transform: scale(1.05);
+    box-shadow: 0 8px 24px rgba(255, 107, 0, 0.3);
+}
+
+.streak-fire-container {
+    position: relative;
+    width: 48px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.duolingo-flame {
+    width: 48px;
+    height: 56px;
+    filter: drop-shadow(0 2px 8px rgba(255, 107, 0, 0.4));
+    transition: all 0.3s ease;
+}
+
+.streak-widget:hover .duolingo-flame {
+    filter: drop-shadow(0 4px 16px rgba(255, 107, 0, 0.6));
+}
+
+/* Flame body animation - Continuous */
+.flame-body {
+    transform-origin: center bottom;
+    transition: all 0.3s ease;
+    animation: duoFlameFlicker 0.4s ease-in-out infinite;
+}
+
+.flame-inner {
+    transform-origin: center bottom;
+    animation: duoFlameInner 0.3s ease-in-out infinite;
+    animation-delay: 0.1s;
+}
+
+.flame-core {
+    transform-origin: center center;
+    animation: duoCorePulse 0.5s ease-in-out infinite;
+}
+
+/* Flame Particles */
+.flame-particle {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.flame-particle.p1 {
+    fill: #FFD700;
+    animation: riseMiddle 2s ease-in-out infinite;
+}
+
+.flame-particle.p2 {
+    fill: #FF8C00;
+    animation: riseLeft 1.8s ease-in-out infinite 0.4s;
+}
+
+.flame-particle.p3 {
+    fill: #FF4500;
+    animation: riseRight 2.2s ease-in-out infinite 0.8s;
+}
+
+.flame-particle.p4 {
+    fill: #FFD700;
+    animation: riseLeft 1.6s ease-in-out infinite 1.2s;
+}
+
+.flame-particle.p5 {
+    fill: #FFA500;
+    animation: riseRight 2s ease-in-out infinite 1.6s;
+}
+
+/* The streak number overlaid on flame */
+.streak-number {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -40%);
+    font-size: 16px;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
+/* Duolingo-style animations */
+@keyframes duoFlameFlicker {
+
+    0%,
+    100% {
+        transform: scaleY(1) scaleX(1);
+    }
+
+    25% {
+        transform: scaleY(1.05) scaleX(0.97);
+    }
+
+    50% {
+        transform: scaleY(0.98) scaleX(1.02);
+    }
+
+    75% {
+        transform: scaleY(1.03) scaleX(0.98);
+    }
+}
+
+@keyframes duoFlameInner {
+
+    0%,
+    100% {
+        transform: translateY(0) scaleY(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: translateY(-2px) scaleY(1.1);
+        opacity: 0.9;
+    }
+}
+
+@keyframes duoCorePulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.9;
+    }
+
+    50% {
+        transform: scale(1.15);
+        opacity: 1;
+    }
+}
+
+@keyframes riseMiddle {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 0.9;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: translateY(-55px) translateX(0) scale(0.5);
+        opacity: 0;
+    }
+}
+
+@keyframes riseLeft {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 0.9;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: translateY(-50px) translateX(-25px) scale(0.5);
+        opacity: 0;
+    }
+}
+
+@keyframes riseRight {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 0.9;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: translateY(-50px) translateX(25px) scale(0.5);
+        opacity: 0;
+    }
+}
+
+/* Sparkline - Animated Bars */
+.sparkline-widget {
+    flex: 1;
+    max-width: 160px;
+}
+
+.sparkline {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 32px;
+}
+
+.spark-bar {
+    flex: 1;
+    min-height: 4px;
+    border-radius: 2px;
+    background: #e5e7eb;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: sparkGrow 0.8s ease-out backwards;
+}
+
+.spark-bar:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.spark-bar:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.spark-bar:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.spark-bar:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.spark-bar:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.spark-bar:nth-child(6) {
+    animation-delay: 0.3s;
+}
+
+.spark-bar:nth-child(7) {
+    animation-delay: 0.35s;
+}
+
+.spark-bar:hover {
+    transform: scaleY(1.2);
+}
+
+.spark-bar.complete {
+    background: linear-gradient(to top, #10b981, #34d399);
+}
+
+.spark-bar.partial {
+    background: linear-gradient(to top, #f59e0b, #fbbf24);
+}
+
+.spark-bar.missed {
+    background: linear-gradient(to top, #ef4444, #f87171);
+}
+
+.sparkline-trend {
+    font-weight: 500;
+    font-size: 12px;
+}
+
+/* Clock - Subtle */
+.clock-widget {
+    margin-left: auto;
+}
+
+.clock-time {
+    font-size: 14px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: #9ca3af;
+}
+
+@media (max-width: 900px) {
+    .top-stats {
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .sparkline-widget {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .stat-sublabel {
+        display: none;
+    }
+}

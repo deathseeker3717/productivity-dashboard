@@ -1,0 +1,320 @@
+/**
+ * Analytics.css - Premium Performance Analytics Styles
+ * 
+ * Clean, modern styling for charts and stats.
+ */
+
+.analytics {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ========================================
+   PAGE TITLE
+   ======================================== */
+
+.analytics-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 8px 0;
+}
+
+/* ========================================
+   CONTROLS - Filter Bar
+   ======================================== */
+
+.analytics-controls {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    flex-wrap: wrap;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.control-group label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.control-group .input,
+.control-group select {
+    min-width: 160px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--bg-hover);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.control-group .input:hover,
+.control-group select:hover {
+    border-color: #d1d5db;
+}
+
+.control-group .input:focus,
+.control-group select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-light);
+    outline: none;
+}
+
+.compare-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-secondary);
+    padding: 8px 0;
+}
+
+.compare-toggle input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #6366f1;
+}
+
+/* ========================================
+   SUMMARY STATS
+   ======================================== */
+
+.analytics-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+.summary-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: #d1d5db;
+}
+
+.summary-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+.summary-label {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.summary-card.positive {
+    border-color: #10b981;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%);
+}
+
+.summary-card.positive .summary-value {
+    color: #10b981;
+}
+
+.summary-card.negative {
+    border-color: #ef4444;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.02) 100%);
+}
+
+.summary-card.negative .summary-value {
+    color: #ef4444;
+}
+
+/* ========================================
+   CHARTS GRID
+   ======================================== */
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s ease;
+}
+
+.chart-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.chart-card .card-header {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.chart-card .card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+}
+
+.chart-card .card-title svg {
+    width: 18px;
+    height: 18px;
+    color: var(--accent);
+}
+
+.chart-container {
+    height: 260px;
+    position: relative;
+}
+
+.pie-card {
+    grid-column: span 2;
+}
+
+.pie-container {
+    max-width: 400px;
+    height: 240px;
+    margin: 0 auto;
+}
+
+/* ========================================
+   HEATMAP WRAPPER
+   ======================================== */
+
+.heatmap-wrapper {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.heatmap-wrapper .card-header {
+    margin-bottom: 16px;
+}
+
+.heatmap-wrapper .card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+}
+
+.heatmap-wrapper .card-title svg {
+    width: 18px;
+    height: 18px;
+    color: var(--accent);
+}
+
+/* ========================================
+   ACTIONS
+   ======================================== */
+
+.analytics-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.analytics-actions .btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.analytics-actions .btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--border);
+}
+
+.analytics-actions .btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 1200px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pie-card {
+        grid-column: span 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .analytics-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .control-group .input,
+    .control-group select {
+        width: 100%;
+    }
+
+    .analytics-summary {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .summary-value {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .analytics-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-container {
+        height: 200px;
+    }
+}

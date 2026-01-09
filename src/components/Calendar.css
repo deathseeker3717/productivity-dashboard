@@ -1,0 +1,437 @@
+/**
+ * Calendar.css - Animated Calendar Styles
+ * 
+ * Features smooth transitions and hover animations for calendar cells.
+ */
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes cellPop {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes todayPulse {
+
+    0%,
+    100% {
+        box-shadow: inset 0 0 0 2px var(--accent-light);
+    }
+
+    50% {
+        box-shadow: inset 0 0 0 2px var(--accent);
+    }
+}
+
+/* ========================================
+   CALENDAR CONTAINER
+   ======================================== */
+
+.calendar {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    animation: scaleIn 0.4s ease-out;
+}
+
+.calendar.embedded {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.calendar-title-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.calendar-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.btn-today {
+    font-size: 12px;
+    padding: 4px 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+}
+
+.btn-today:hover {
+    background: var(--bg-hover);
+    color: var(--text);
+    transform: translateY(-1px);
+}
+
+.calendar-nav {
+    display: flex;
+    gap: 4px;
+}
+
+.nav-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-card);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text);
+    transform: scale(1.05);
+}
+
+.nav-btn:active {
+    transform: scale(0.95);
+}
+
+.nav-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Compact Header */
+.calendar-header-compact {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.calendar-month {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+}
+
+.calendar-nav-compact {
+    display: flex;
+    gap: 4px;
+}
+
+.calendar-nav-compact button {
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+}
+
+.calendar-nav-compact button:hover {
+    background: var(--bg-hover);
+    transform: scale(1.1);
+}
+
+/* Weekdays */
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 6px;
+    animation: fadeIn 0.3s ease-out 0.1s backwards;
+}
+
+.weekday {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    padding: 6px;
+}
+
+/* Calendar Grid - Animated Cells */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.cal-cell {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    font-size: 14px;
+    background: var(--bg-hover);
+    animation: slideInUp 0.3s ease-out backwards;
+}
+
+/* Staggered animation for cells */
+.cal-cell:nth-child(1) {
+    animation-delay: 0.02s;
+}
+
+.cal-cell:nth-child(2) {
+    animation-delay: 0.04s;
+}
+
+.cal-cell:nth-child(3) {
+    animation-delay: 0.06s;
+}
+
+.cal-cell:nth-child(4) {
+    animation-delay: 0.08s;
+}
+
+.cal-cell:nth-child(5) {
+    animation-delay: 0.1s;
+}
+
+.cal-cell:nth-child(6) {
+    animation-delay: 0.12s;
+}
+
+.cal-cell:nth-child(7) {
+    animation-delay: 0.14s;
+}
+
+.cal-cell.empty {
+    background: transparent;
+    cursor: default;
+    animation: none;
+}
+
+.cal-cell:not(.empty):hover {
+    transform: scale(1.1);
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.cal-cell:not(.empty):active {
+    transform: scale(0.95);
+}
+
+/* Intensity Levels - Gradient Colors */
+.cal-cell.intensity-0 {
+    background: var(--bg-hover);
+}
+
+.cal-cell.intensity-1 {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%);
+}
+
+.cal-cell.intensity-2 {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(16, 185, 129, 0.2) 100%);
+}
+
+.cal-cell.intensity-3 {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.5) 0%, rgba(16, 185, 129, 0.4) 100%);
+}
+
+.cal-cell.intensity-4 {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.cal-cell.today {
+    box-shadow: inset 0 0 0 2px var(--accent);
+    animation: todayPulse 2s ease-in-out infinite;
+}
+
+.cal-cell.locked {
+    opacity: 0.5;
+}
+
+.day-number {
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: transform 0.2s ease;
+}
+
+.cal-cell:hover .day-number {
+    transform: scale(1.1);
+}
+
+.cal-cell.intensity-4 .day-number {
+    color: white;
+}
+
+.day-progress {
+    font-size: 9px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.cal-cell.intensity-4 .day-progress {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.lock-icon {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    opacity: 0.3;
+    transition: opacity 0.2s ease;
+}
+
+.cal-cell:hover .lock-icon {
+    opacity: 0.6;
+}
+
+.lock-icon svg {
+    width: 10px;
+    height: 10px;
+}
+
+.today-indicator {
+    position: absolute;
+    bottom: 4px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+}
+
+/* Legend - Animated */
+.calendar-legend {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    animation: fadeIn 0.4s ease-out 0.3s backwards;
+}
+
+.legend-label {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.legend-scale {
+    display: flex;
+    gap: 3px;
+}
+
+.legend-cell {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    transition: transform 0.2s ease;
+}
+
+.legend-cell:hover {
+    transform: scale(1.3);
+}
+
+.legend-cell.intensity-0 {
+    background: var(--bg-hover);
+}
+
+.legend-cell.intensity-1 {
+    background: rgba(16, 185, 129, 0.2);
+}
+
+.legend-cell.intensity-2 {
+    background: rgba(16, 185, 129, 0.4);
+}
+
+.legend-cell.intensity-3 {
+    background: rgba(16, 185, 129, 0.6);
+}
+
+.legend-cell.intensity-4 {
+    background: #10b981;
+}
+
+@media (max-width: 640px) {
+    .cal-cell {
+        font-size: 12px;
+    }
+
+    .day-progress {
+        display: none;
+    }
+}

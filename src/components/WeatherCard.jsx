@@ -1,0 +1,528 @@
+/**
+ * WeatherCard.jsx - Dynamic Weather Widget
+ * 
+ * Live weather data with context-aware visuals.
+ * Updates automatically, changes appearance based on conditions.
+ */
+
+import React, { useState, useEffect, useCallback } from 'react';
+import './WeatherCard.css';
+
+// Weather condition to theme mapping
+const getWeatherTheme = (condition, isNight) => {
+    const themes = {
+        clear: {
+            gradient: isNight
+                ? 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)'
+                : 'linear-gradient(135deg, #87CEEB 0%, #E0F6FF 100%)',
+            accent: isNight ? '#ffd700' : '#FFD93D',
+            icon: isNight ? 'moon' : 'sun'
+        },
+        clouds: {
+            gradient: 'linear-gradient(135deg, #E8EEF2 0%, #C5D5E4 100%)',
+            accent: '#8BA4B4',
+            icon: 'clouds'
+        },
+        rain: {
+            gradient: 'linear-gradient(135deg, #FFF9E6 0%, #E8F4E5 100%)',
+            accent: '#6B8E7B',
+            icon: 'rain'
+        },
+        drizzle: {
+            gradient: 'linear-gradient(135deg, #F0F4F8 0%, #D9E4EC 100%)',
+            accent: '#7BA3C4',
+            icon: 'drizzle'
+        },
+        thunderstorm: {
+            gradient: 'linear-gradient(135deg, #4A5568 0%, #2D3748 100%)',
+            accent: '#F6E05E',
+            icon: 'storm'
+        },
+        snow: {
+            gradient: 'linear-gradient(135deg, #EDF2F7 0%, #E2E8F0 100%)',
+            accent: '#90CDF4',
+            icon: 'snow'
+        },
+        mist: {
+            gradient: 'linear-gradient(135deg, #F7FAFC 0%, #EDF2F7 100%)',
+            accent: '#A0AEC0',
+            icon: 'mist'
+        },
+        default: {
+            gradient: 'linear-gradient(135deg, #FFF9E6 0%, #E8F4E5 100%)',
+            accent: '#6B8E7B',
+            icon: 'clouds'
+        }
+    };
+
+    const key = condition?.toLowerCase() || 'default';
+    return themes[key] || themes.default;
+};
+
+// Weather Icons as SVG components
+const WeatherIcons = {
+    sun: () => (
+        <svg viewBox="0 0 64 64" className="weather-icon sun-icon">
+            <circle cx="32" cy="32" r="14" fill="#FFD93D" />
+            <g stroke="#FFD93D" strokeWidth="3" strokeLinecap="round">
+                <line x1="32" y1="6" x2="32" y2="14" />
+                <line x1="32" y1="50" x2="32" y2="58" />
+                <line x1="6" y1="32" x2="14" y2="32" />
+                <line x1="50" y1="32" x2="58" y2="32" />
+                <line x1="13.5" y1="13.5" x2="19" y2="19" />
+                <line x1="45" y1="45" x2="50.5" y2="50.5" />
+                <line x1="13.5" y1="50.5" x2="19" y2="45" />
+                <line x1="45" y1="19" x2="50.5" y2="13.5" />
+            </g>
+        </svg>
+    ),
+    moon: () => (
+        <svg viewBox="0 0 64 64" className="weather-icon moon-icon">
+            <path d="M40 12c-12 0-22 10-22 22s10 22 22 22c2 0 4-0.3 6-0.8-4-4-6-10-6-16 0-12 8-20 16-24-4-2-9-3.2-16-3.2z" fill="#ffd700" />
+        </svg>
+    ),
+    clouds: () => (
+        <svg viewBox="0 0 64 64" className="weather-icon cloud-icon">
+            <ellipse cx="28" cy="36" rx="16" ry="10" fill="#B0C4D4" />
+            <ellipse cx="42" cy="38" rx="14" ry="9" fill="#C5D5E4" />
+            <ellipse cx="35" cy="32" rx="12" ry="8" fill="#D4E4EC" />
+        </svg>
+    ),
+    rain: () => (
+        <svg viewBox="0 0 64 64" className="weather-icon rain-icon">
+            <ellipse cx="28" cy="26" rx="14" ry="9" fill="#B0C4D4" />
+            <ellipse cx="40" cy="28" rx="12" ry="8" fill="#C5D5E4" />
+            <g stroke="#6B8E7B" strokeWidth="2" strokeLinecap="round" className="raindrops">
+                <line x1="22" y1="40" x2="20" y2="50" />
+                <line x1="32" y1="42" x2="30" y2="52" />
+                <line x1="42" y1="40" x2="40" y2="50" />
+            </g>
+        </svg>
+    ),
+    drizzle: () => (
+        <svg viewBox="0 0 64 64" className="weather-icon drizzle-icon">
+            <ellipse cx="30" cy="28" rx="14" ry="9" fill="#C5D5E4" />
+            <ellipse cx="40" cy="30" rx="10" ry="7" fill="#D4E4EC" />
+            <g stroke="#7BA3C4" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="3 3">
+                <line x1="24" y1="42" x2="22" y2="50" />
+                <line x1="34" y1="44" x2="32" y2="52" />
+                <line x1="44" y1="42" x2="42" y2="50" />
+            </g>
+        </svg>
+    ),
+    storm: () => (
+        <svg viewBox="0 0 64 64" className="weather-icon storm-icon">
+            <ellipse cx="28" cy="22" rx="14" ry="9" fill="#4A5568" />
+            <ellipse cx="40" cy="24" rx="12" ry="8" fill="#2D3748" />
+            <polygon points="32,30 28,42 34,42 30,54 40,38 34,38 38,30" fill="#F6E05E" />
+        </svg>
+    ),
+    snow: () => (
+        <svg viewBox="0 0 64 64" className="weather-icon snow-icon">
+            <ellipse cx="30" cy="26" rx="14" ry="9" fill="#CBD5E0" />
+            <ellipse cx="40" cy="28" rx="10" ry="7" fill="#E2E8F0" />
+            <g fill="#90CDF4">
+                <circle cx="22" cy="44" r="2" />
+                <circle cx="32" cy="48" r="2" />
+                <circle cx="42" cy="44" r="2" />
+                <circle cx="27" cy="52" r="1.5" />
+                <circle cx="37" cy="54" r="1.5" />
+            </g>
+        </svg>
+    ),
+    mist: () => (
+        <svg viewBox="0 0 64 64" className="weather-icon mist-icon">
+            <g stroke="#A0AEC0" strokeWidth="3" strokeLinecap="round">
+                <line x1="12" y1="28" x2="52" y2="28" opacity="0.6" />
+                <line x1="16" y1="36" x2="48" y2="36" opacity="0.8" />
+                <line x1="12" y1="44" x2="52" y2="44" opacity="0.5" />
+            </g>
+        </svg>
+    )
+};
+
+// Enhanced Background Scene with dynamic weather effects
+const BackgroundScene = ({ condition, isNight }) => {
+    const theme = getWeatherTheme(condition, isNight);
+    const [shootingStarActive, setShootingStarActive] = useState(false);
+
+    // Trigger shooting star every 5 minutes
+    useEffect(() => {
+        if (!isNight) return;
+
+        const triggerShootingStar = () => {
+            setShootingStarActive(true);
+            // Remove active class after animation completes
+            setTimeout(() => setShootingStarActive(false), 700);
+        };
+
+        // First shooting star after 10 seconds
+        const initialTimeout = setTimeout(triggerShootingStar, 10000);
+
+        // Then every 5 minutes (300000ms)
+        const interval = setInterval(triggerShootingStar, 300000);
+
+        return () => {
+            clearTimeout(initialTimeout);
+            clearInterval(interval);
+        };
+    }, [isNight]);
+
+    return (
+        <div className={`weather-scene weather-bg-${condition || 'default'} ${isNight ? 'night' : 'day'}`}>
+            {/* Sun rays for clear weather */}
+            {condition === 'clear' && !isNight && (
+                <div className="sun-rays">
+                    {[...Array(8)].map((_, i) => (
+                        <div key={i} className="sun-ray" style={{
+                            transform: `rotate(${i * 45}deg)`
+                        }} />
+                    ))}
+                </div>
+            )}
+
+            {/* Stars for night - fixed positions */}
+            {isNight && (
+                <div className="stars-container">
+                    {/* Fixed position stars that only twinkle */}
+                    <div className="star" style={{ left: '5%', top: '10%', animationDelay: '0s' }} />
+                    <div className="star" style={{ left: '15%', top: '25%', animationDelay: '0.5s' }} />
+                    <div className="star" style={{ left: '25%', top: '8%', animationDelay: '1s' }} />
+                    <div className="star" style={{ left: '35%', top: '35%', animationDelay: '1.5s' }} />
+                    <div className="star" style={{ left: '45%', top: '15%', animationDelay: '0.3s' }} />
+                    <div className="star" style={{ left: '55%', top: '28%', animationDelay: '0.8s' }} />
+                    <div className="star" style={{ left: '65%', top: '12%', animationDelay: '1.2s' }} />
+                    <div className="star" style={{ left: '75%', top: '38%', animationDelay: '0.6s' }} />
+                    <div className="star" style={{ left: '85%', top: '20%', animationDelay: '1.8s' }} />
+                    <div className="star" style={{ left: '92%', top: '5%', animationDelay: '0.2s' }} />
+                    <div className="star large" style={{ left: '20%', top: '18%', animationDelay: '2s' }} />
+                    <div className="star large" style={{ left: '60%', top: '5%', animationDelay: '2.5s' }} />
+                    <div className="star large" style={{ left: '80%', top: '30%', animationDelay: '1.7s' }} />
+
+                    {/* Shooting stars - triggered by state */}
+                    <div className={`shooting-star s1 ${shootingStarActive ? 'active' : ''}`} />
+                    <div className={`shooting-star s2 ${shootingStarActive ? 'active' : ''}`} style={{ animationDelay: '0.2s' }} />
+
+                    {condition === 'clear' && (
+                        <div className="moon-glow" />
+                    )}
+                </div>
+            )}
+
+            {/* Clouds floating - enhanced */}
+            {(condition === 'clouds' || condition === 'rain' || condition === 'drizzle' || condition === 'thunderstorm') && (
+                <div className="floating-clouds">
+                    <div className="float-cloud c1" />
+                    <div className="float-cloud c2" />
+                    <div className="float-cloud c3" />
+                </div>
+            )}
+
+            {/* Rain overlay - enhanced */}
+            {(condition === 'rain' || condition === 'drizzle') && (
+                <div className="rain-overlay">
+                    {[...Array(condition === 'rain' ? 20 : 10)].map((_, i) => (
+                        <div key={i} className={`raindrop ${condition === 'drizzle' ? 'light' : ''}`} style={{
+                            left: `${5 + i * 5}%`,
+                            animationDelay: `${i * 0.1}s`,
+                            animationDuration: `${0.6 + Math.random() * 0.4}s`
+                        }} />
+                    ))}
+                </div>
+            )}
+
+            {/* Lightning flash for thunderstorm */}
+            {condition === 'thunderstorm' && (
+                <div className="lightning-container">
+                    <div className="lightning-flash" />
+                    <svg className="lightning-bolt" viewBox="0 0 40 60">
+                        <polygon points="20,0 12,25 22,25 8,60 18,30 10,30" fill="#FFE066" />
+                    </svg>
+                </div>
+            )}
+
+            {/* Snow particles - enhanced */}
+            {condition === 'snow' && (
+                <div className="snow-overlay">
+                    {[...Array(25)].map((_, i) => (
+                        <div key={i} className={`snowflake ${i % 3 === 0 ? 'large' : ''}`} style={{
+                            left: `${4 + i * 4}%`,
+                            animationDelay: `${i * 0.15}s`,
+                            animationDuration: `${2.5 + Math.random() * 2}s`
+                        }} />
+                    ))}
+                </div>
+            )}
+
+            {/* Mist/Fog layers */}
+            {condition === 'mist' && (
+                <div className="mist-overlay">
+                    <div className="mist-layer m1" />
+                    <div className="mist-layer m2" />
+                    <div className="mist-layer m3" />
+                </div>
+            )}
+
+            {/* Rolling hills silhouette - 3 layers for depth */}
+            <svg className="scene-ground" viewBox="0 0 400 80" preserveAspectRatio="xMidYMax slice">
+                <defs>
+                    <linearGradient id="hillGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="rgba(120, 140, 160, 0.15)" />
+                        <stop offset="100%" stopColor="rgba(100, 120, 140, 0.25)" />
+                    </linearGradient>
+                    <linearGradient id="hillGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="rgba(90, 110, 130, 0.2)" />
+                        <stop offset="100%" stopColor="rgba(70, 90, 110, 0.35)" />
+                    </linearGradient>
+                    <linearGradient id="hillGrad3" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="rgba(60, 80, 100, 0.3)" />
+                        <stop offset="100%" stopColor="rgba(50, 70, 90, 0.5)" />
+                    </linearGradient>
+                </defs>
+                {/* Far hills - lightest */}
+                <path d="M0 80 Q60 50 120 60 T240 45 T360 55 T400 50 L400 80 Z" fill="url(#hillGrad1)" />
+                {/* Mid hills */}
+                <path d="M0 80 Q100 55 180 65 T320 52 T400 62 L400 80 Z" fill="url(#hillGrad2)" />
+                {/* Near hills - darkest */}
+                <path d="M0 80 Q50 68 120 72 T260 65 T400 75 L400 80 Z" fill="url(#hillGrad3)" />
+            </svg>
+
+            {/* Decorative umbrella for rain */}
+            {condition === 'rain' && (
+                <svg className="scene-umbrella" viewBox="0 0 40 50">
+                    <path d="M20 5 Q5 15 5 25 L35 25 Q35 15 20 5 Z" fill="#E57373" />
+                    <path d="M20 5 Q15 12 12 18" fill="none" stroke="#EF9A9A" strokeWidth="1" opacity="0.5" />
+                    <line x1="20" y1="25" x2="20" y2="48" stroke="#8D6E63" strokeWidth="2" />
+                    <path d="M20 48 Q15 50 18 52" fill="none" stroke="#8D6E63" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+            )}
+        </div>
+    );
+};
+
+function WeatherCard() {
+    const [weather, setWeather] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [location, setLocation] = useState({ city: 'Loading...', country: '' });
+    const [isTransitioning, setIsTransitioning] = useState(false);
+
+    const fetchWeather = useCallback(async (lat, lon) => {
+        try {
+            // Using Open-Meteo API (free, no API key required, reliable)
+            const weatherRes = await fetch(
+                `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,surface_pressure,wind_speed_10m&timezone=auto`
+            );
+
+            if (!weatherRes.ok) throw new Error('Weather fetch failed');
+
+            const weatherData = await weatherRes.json();
+            const current = weatherData.current;
+
+            // Reverse geocode for city name (use English names)
+            const geoRes = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&accept-language=en`
+            );
+            const geoData = await geoRes.json();
+            const cityName = geoData.address?.city || geoData.address?.town || geoData.address?.village || geoData.address?.state || 'Unknown';
+            const countryName = geoData.address?.country || '';
+
+            setIsTransitioning(true);
+            setTimeout(() => {
+                setWeather({
+                    temp: Math.round(current.temperature_2m),
+                    condition: mapWeatherCode(current.weather_code),
+                    description: getWeatherDescription(current.weather_code),
+                    humidity: Math.round(current.relative_humidity_2m),
+                    windSpeed: Math.round(current.wind_speed_10m),
+                    pressure: Math.round(current.surface_pressure),
+                    feelsLike: Math.round(current.apparent_temperature)
+                });
+                setLocation({
+                    city: cityName,
+                    country: countryName
+                });
+                setLoading(false);
+                setError(null);
+                setTimeout(() => setIsTransitioning(false), 300);
+            }, 150);
+        } catch (err) {
+            console.error('Weather fetch error:', err);
+            // Fallback to demo data
+            setWeather({
+                temp: 22,
+                condition: 'clear',
+                description: 'Clear Sky',
+                humidity: 65,
+                windSpeed: 12,
+                pressure: 1013,
+                feelsLike: 21
+            });
+            setLocation({ city: 'Your City', country: '' });
+            setLoading(false);
+        }
+    }, []);
+
+    // Map Open-Meteo weather codes to conditions
+    // See: https://open-meteo.com/en/docs#weathervariables
+    const mapWeatherCode = (code) => {
+        if (code === 0) return 'clear';
+        if ([1, 2, 3].includes(code)) return 'clouds';
+        if ([45, 48].includes(code)) return 'mist';
+        if ([51, 53, 55, 56, 57].includes(code)) return 'drizzle';
+        if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return 'rain';
+        if ([71, 73, 75, 77, 85, 86].includes(code)) return 'snow';
+        if ([95, 96, 99].includes(code)) return 'thunderstorm';
+        return 'clouds';
+    };
+
+    const getWeatherDescription = (code) => {
+        const descriptions = {
+            0: 'Clear Sky',
+            1: 'Mainly Clear',
+            2: 'Partly Cloudy',
+            3: 'Overcast',
+            45: 'Foggy',
+            48: 'Depositing Rime Fog',
+            51: 'Light Drizzle',
+            53: 'Moderate Drizzle',
+            55: 'Dense Drizzle',
+            56: 'Light Freezing Drizzle',
+            57: 'Dense Freezing Drizzle',
+            61: 'Slight Rain',
+            63: 'Moderate Rain',
+            65: 'Heavy Rain',
+            66: 'Light Freezing Rain',
+            67: 'Heavy Freezing Rain',
+            71: 'Slight Snow',
+            73: 'Moderate Snow',
+            75: 'Heavy Snow',
+            77: 'Snow Grains',
+            80: 'Slight Rain Showers',
+            81: 'Moderate Rain Showers',
+            82: 'Violent Rain Showers',
+            85: 'Slight Snow Showers',
+            86: 'Heavy Snow Showers',
+            95: 'Thunderstorm',
+            96: 'Thunderstorm with Slight Hail',
+            99: 'Thunderstorm with Heavy Hail'
+        };
+        return descriptions[code] || 'Unknown';
+    };
+
+    useEffect(() => {
+        // Try to get user location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    fetchWeather(pos.coords.latitude, pos.coords.longitude);
+                },
+                () => {
+                    // Fallback to default location
+                    fetchWeather(28.6139, 77.2090); // New Delhi
+                }
+            );
+        } else {
+            fetchWeather(28.6139, 77.2090);
+        }
+
+        // Refresh every 10 minutes
+        const interval = setInterval(() => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude),
+                    () => fetchWeather(28.6139, 77.2090)
+                );
+            }
+        }, 600000);
+
+        return () => clearInterval(interval);
+    }, [fetchWeather]);
+
+    // Check if night time (6pm - 6am)
+    const isNight = () => {
+        const hour = new Date().getHours();
+        return hour < 6 || hour >= 18;
+    };
+
+    const theme = weather ? getWeatherTheme(weather.condition, isNight()) : getWeatherTheme('default', false);
+    const IconComponent = weather ? WeatherIcons[theme.icon] || WeatherIcons.clouds : WeatherIcons.clouds;
+
+    if (loading) {
+        return (
+            <div className="weather-card loading">
+                <div className="weather-skeleton">
+                    <div className="skeleton-icon" />
+                    <div className="skeleton-temp" />
+                    <div className="skeleton-stats" />
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div
+            className={`weather-card ${isTransitioning ? 'transitioning' : ''}`}
+            style={{ background: theme.gradient }}
+        >
+            <BackgroundScene condition={weather?.condition} isNight={isNight()} />
+
+            <div className="weather-content">
+                {/* City name at top */}
+                <div className="weather-city-label">
+                    {location.city}
+                </div>
+
+                {/* Top section: Icon + Condition */}
+                <div className="weather-header">
+                    <div className="weather-icon-wrapper">
+                        <IconComponent />
+                    </div>
+                    <span className="weather-condition">{weather?.description}</span>
+                </div>
+
+                {/* Temperature */}
+                <div className="weather-temp">
+                    <span className="temp-value">{weather?.temp}</span>
+                    <span className="temp-unit">°C</span>
+                </div>
+
+                {/* Stats Row */}
+                <div className="weather-stats">
+                    <div className="stat-item">
+                        <svg className="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2" />
+                        </svg>
+                        <span className="stat-value">{weather?.windSpeed}</span>
+                        <span className="stat-label">km/h</span>
+                    </div>
+                    <div className="stat-divider" />
+                    <div className="stat-item">
+                        <svg className="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="8" x2="12" y2="12" />
+                            <line x1="12" y1="12" x2="16" y2="12" />
+                        </svg>
+                        <span className="stat-value">{weather?.pressure}</span>
+                        <span className="stat-label">hPa</span>
+                    </div>
+                    <div className="stat-divider" />
+                    <div className="stat-item">
+                        <svg className="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+                        </svg>
+                        <span className="stat-value">{weather?.humidity}</span>
+                        <span className="stat-label">%</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Hover overlay */}
+            <div className="weather-hover-overlay">
+                <span>View Details</span>
+            </div>
+        </div>
+    );
+}
+
+export default WeatherCard;

@@ -1,0 +1,222 @@
+/**
+ * GoalCard.css - Goal Card Styles
+ * 
+ * Calm, intentional design for long-term objectives.
+ */
+
+.goal-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    transition: all 0.3s ease;
+    cursor: default;
+}
+
+.goal-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* State Variants */
+.goal-card.completed {
+    border-color: var(--success);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, var(--bg-card) 100%);
+}
+
+.goal-card.expired {
+    opacity: 0.6;
+    border-color: var(--text-muted);
+}
+
+.goal-card.urgent {
+    border-color: var(--warning);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, var(--bg-card) 100%);
+}
+
+/* Header */
+.goal-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.goal-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--accent-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.goal-icon svg {
+    width: 18px;
+    height: 18px;
+    color: var(--accent);
+}
+
+.goal-card.completed .goal-icon {
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.goal-card.completed .goal-icon svg {
+    color: var(--success);
+}
+
+.goal-title-section {
+    flex: 1;
+    min-width: 0;
+}
+
+.goal-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 4px 0;
+    line-height: 1.3;
+}
+
+.goal-dates {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.goal-dates svg {
+    width: 12px;
+    height: 12px;
+}
+
+.goal-edit-btn {
+    opacity: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+}
+
+.goal-card:hover .goal-edit-btn {
+    opacity: 1;
+}
+
+.goal-edit-btn:hover {
+    background: var(--bg-hover);
+    color: var(--accent);
+}
+
+.goal-edit-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Description */
+.goal-description {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0 0 16px 0;
+    line-height: 1.5;
+    padding-left: 48px;
+}
+
+/* Progress Section */
+.goal-progress-section {
+    cursor: pointer;
+}
+
+.goal-card.completed .goal-progress-section,
+.goal-card.expired .goal-progress-section {
+    cursor: default;
+}
+
+.goal-progress-bar {
+    height: 6px;
+    background: var(--bg-active);
+    border-radius: 100px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.goal-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent) 0%, #8b5cf6 100%);
+    border-radius: 100px;
+    transition: width 0.4s ease;
+}
+
+.goal-card.completed .goal-progress-fill {
+    background: var(--success);
+}
+
+.goal-card.urgent .goal-progress-fill {
+    background: var(--warning);
+}
+
+.goal-progress-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.goal-progress-value {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.goal-days-remaining {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.goal-card.urgent .goal-days-remaining {
+    color: var(--warning);
+    font-weight: 500;
+}
+
+.goal-completed-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--success);
+    background: rgba(16, 185, 129, 0.1);
+    padding: 3px 8px;
+    border-radius: 100px;
+}
+
+.goal-expired-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg-active);
+    padding: 3px 8px;
+    border-radius: 100px;
+}
+
+/* Animation */
+@keyframes goalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.goal-card {
+    animation: goalFadeIn 0.3s ease-out;
+}

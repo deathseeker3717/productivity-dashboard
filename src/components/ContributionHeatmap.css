@@ -1,0 +1,440 @@
+/**
+ * ContributionHeatmap.css - GitHub-Style Heatmap
+ * 
+ * Pixel-perfect layout matching GitHub's contribution graph
+ */
+
+/* ========================================
+   MAIN CONTAINER
+   ======================================== */
+
+.contribution-heatmap {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+
+.heatmap-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.heatmap-title {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text);
+    margin: 0;
+}
+
+.heatmap-year-selector {
+    position: relative;
+}
+
+.year-dropdown {
+    appearance: none;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.year-dropdown:hover {
+    background: var(--accent-hover, #2563eb);
+    opacity: 0.9;
+}
+
+.year-dropdown:focus {
+    outline: none;
+}
+
+/* ========================================
+   SECTION
+   ======================================== */
+
+.heatmap-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.heatmap-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 4px 0;
+}
+
+/* ========================================
+   GRAPH CONTAINER
+   ======================================== */
+
+.heatmap-graph {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    width: fit-content;
+}
+
+.heatmap-graph::-webkit-scrollbar {
+    display: none;
+}
+
+/* ========================================
+   MONTH LABELS ROW
+   ======================================== */
+
+.heatmap-months-row {
+    display: flex;
+    gap: 4px;
+}
+
+.heatmap-day-spacer {
+    width: 28px;
+    flex-shrink: 0;
+}
+
+.heatmap-month-labels {
+    position: relative;
+    height: 16px;
+}
+
+.month-label {
+    position: absolute;
+    top: 0;
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+/* ========================================
+   GRID ROW (Day Labels + Grid)
+   ======================================== */
+
+.heatmap-grid-row {
+    display: flex;
+    gap: 4px;
+}
+
+.heatmap-day-labels {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: 28px;
+    flex-shrink: 0;
+}
+
+.day-label {
+    height: 13px;
+    font-size: 9px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    line-height: 1;
+}
+
+/* ========================================
+   GRID
+   ======================================== */
+
+.heatmap-grid {
+    display: flex;
+    gap: 3px;
+}
+
+.heatmap-week {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+/* ========================================
+   CELLS
+   ======================================== */
+
+.heatmap-cell {
+    width: 13px;
+    height: 13px;
+    border-radius: 2px;
+    cursor: pointer;
+    outline: 1px solid rgba(27, 31, 35, 0.06);
+    outline-offset: -1px;
+}
+
+.dark-theme .heatmap-cell {
+    outline-color: rgba(255, 255, 255, 0.05);
+}
+
+.heatmap-cell:hover {
+    outline: 1px solid var(--text-muted);
+}
+
+.heatmap-cell.outside {
+    visibility: hidden;
+}
+
+.heatmap-cell.today {
+    outline: 2px solid var(--accent);
+    outline-offset: -1px;
+}
+
+/* ========================================
+   FOOTER
+   ======================================== */
+
+.heatmap-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 4px;
+    padding-left: 32px;
+}
+
+.heatmap-legend {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.legend-text {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin: 0 4px;
+}
+
+.legend-cell {
+    width: 13px;
+    height: 13px;
+    border-radius: 2px;
+}
+
+/* ========================================
+   GREEN SCALE - Productivity
+   ======================================== */
+
+.heatmap-cell.green-0,
+.legend-cell.green-0 {
+    background: #ebedf0;
+}
+
+.dark-theme .heatmap-cell.green-0,
+.dark-theme .legend-cell.green-0 {
+    background: #161b22;
+}
+
+.heatmap-cell.green-1,
+.legend-cell.green-1 {
+    background: #9be9a8;
+}
+
+.dark-theme .heatmap-cell.green-1,
+.dark-theme .legend-cell.green-1 {
+    background: #0e4429;
+}
+
+.heatmap-cell.green-2,
+.legend-cell.green-2 {
+    background: #40c463;
+}
+
+.dark-theme .heatmap-cell.green-2,
+.dark-theme .legend-cell.green-2 {
+    background: #006d32;
+}
+
+.heatmap-cell.green-3,
+.legend-cell.green-3 {
+    background: #30a14e;
+}
+
+.dark-theme .heatmap-cell.green-3,
+.dark-theme .legend-cell.green-3 {
+    background: #26a641;
+}
+
+.heatmap-cell.green-4,
+.legend-cell.green-4 {
+    background: #216e39;
+}
+
+.dark-theme .heatmap-cell.green-4,
+.dark-theme .legend-cell.green-4 {
+    background: #39d353;
+}
+
+/* ========================================
+   BLUE SCALE - Activity
+   ======================================== */
+
+.heatmap-cell.blue-0,
+.legend-cell.blue-0 {
+    background: #ebedf0;
+}
+
+.dark-theme .heatmap-cell.blue-0,
+.dark-theme .legend-cell.blue-0 {
+    background: #161b22;
+}
+
+.heatmap-cell.blue-1,
+.legend-cell.blue-1 {
+    background: #c5d5f4;
+}
+
+.dark-theme .heatmap-cell.blue-1,
+.dark-theme .legend-cell.blue-1 {
+    background: #1a365d;
+}
+
+.heatmap-cell.blue-2,
+.legend-cell.blue-2 {
+    background: #8badec;
+}
+
+.dark-theme .heatmap-cell.blue-2,
+.dark-theme .legend-cell.blue-2 {
+    background: #2c5282;
+}
+
+.heatmap-cell.blue-3,
+.legend-cell.blue-3 {
+    background: #5c82df;
+}
+
+.dark-theme .heatmap-cell.blue-3,
+.dark-theme .legend-cell.blue-3 {
+    background: #3182ce;
+}
+
+.heatmap-cell.blue-4,
+.legend-cell.blue-4 {
+    background: #3b5dc9;
+}
+
+.dark-theme .heatmap-cell.blue-4,
+.dark-theme .legend-cell.blue-4 {
+    background: #4299e1;
+}
+
+/* ========================================
+   GREY SCALE - Missed Days
+   ======================================== */
+
+.heatmap-cell.grey-0,
+.legend-cell.grey-0 {
+    background: #ebedf0;
+}
+
+.dark-theme .heatmap-cell.grey-0,
+.dark-theme .legend-cell.grey-0 {
+    background: #161b22;
+}
+
+.heatmap-cell.grey-1,
+.legend-cell.grey-1 {
+    background: #d0d7de;
+}
+
+.dark-theme .heatmap-cell.grey-1,
+.dark-theme .legend-cell.grey-1 {
+    background: #2d3748;
+}
+
+.heatmap-cell.grey-2,
+.legend-cell.grey-2 {
+    background: #afb8c1;
+}
+
+.dark-theme .heatmap-cell.grey-2,
+.dark-theme .legend-cell.grey-2 {
+    background: #4a5568;
+}
+
+.heatmap-cell.grey-3,
+.legend-cell.grey-3 {
+    background: #8b949e;
+}
+
+.dark-theme .heatmap-cell.grey-3,
+.dark-theme .legend-cell.grey-3 {
+    background: #718096;
+}
+
+.heatmap-cell.grey-4,
+.legend-cell.grey-4 {
+    background: #6e7681;
+}
+
+.dark-theme .heatmap-cell.grey-4,
+.dark-theme .legend-cell.grey-4 {
+    background: #a0aec0;
+}
+
+/* ========================================
+   TOOLTIP
+   ======================================== */
+
+.heatmap-tooltip {
+    position: fixed;
+    transform: translate(-50%, -100%);
+    padding: 8px 12px;
+    background: #1b1f23;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.5;
+    border-radius: 6px;
+    white-space: pre;
+    z-index: 99999;
+    pointer-events: none;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+.heatmap-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #1b1f23;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+    .heatmap-day-labels {
+        display: none;
+    }
+
+    .heatmap-day-spacer {
+        display: none;
+    }
+
+    .heatmap-footer {
+        padding-left: 0;
+    }
+}

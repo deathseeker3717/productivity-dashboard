@@ -1,0 +1,194 @@
+/**
+ * GoalForm.css - Goal Form Modal Styles
+ */
+
+.goal-form-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.goal-form-modal {
+    background: var(--bg-card);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.goal-form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.goal-form-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+}
+
+.goal-form-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+}
+
+.goal-form-close:hover {
+    background: var(--bg-hover);
+    color: var(--text);
+}
+
+.goal-form-close svg {
+    width: 18px;
+    height: 18px;
+}
+
+.goal-form-modal form {
+    padding: 24px;
+}
+
+.goal-form-field {
+    margin-bottom: 20px;
+}
+
+.goal-form-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.goal-form-field input,
+.goal-form-field textarea,
+.goal-form-field select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--bg);
+    transition: all 0.2s ease;
+}
+
+.goal-form-field input:focus,
+.goal-form-field textarea:focus,
+.goal-form-field select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.goal-form-field textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.goal-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.goal-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+.goal-cancel-btn,
+.goal-submit-btn,
+.goal-delete-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.goal-cancel-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+}
+
+.goal-cancel-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text);
+}
+
+.goal-submit-btn {
+    background: var(--accent);
+    border: none;
+    color: white;
+}
+
+.goal-submit-btn:hover {
+    filter: brightness(1.1);
+}
+
+.goal-delete-btn {
+    margin-right: auto;
+    background: transparent;
+    border: 1px solid var(--danger);
+    color: var(--danger);
+}
+
+.goal-delete-btn:hover {
+    background: var(--danger);
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .goal-form-row {
+        grid-template-columns: 1fr;
+    }
+}

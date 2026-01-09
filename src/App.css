@@ -1,0 +1,233 @@
+/**
+ * App.css - Main Application Layout
+ * 
+ * Clean layout matching the target design.
+ */
+
+/* ========================================
+   APP LAYOUT
+   ======================================== */
+
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+    background: var(--bg);
+    transition: background 0.3s ease;
+}
+
+/* ========================================
+   MAIN CONTENT AREA
+   ======================================== */
+
+.main-content {
+    flex: 1;
+    margin-left: 180px;
+    padding: 24px 40px;
+    overflow-y: auto;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* ========================================
+   TOP BAR - Search & Actions
+   ======================================== */
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    width: 280px;
+    transition: all 0.3s ease;
+}
+
+.search-container:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.search-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+}
+
+.search-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.search-input {
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    color: var(--text);
+    width: 100%;
+    outline: none;
+}
+
+.search-input::placeholder {
+    color: var(--text-muted);
+}
+
+/* Top Actions */
+.top-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.notification-btn {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.notification-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--border);
+}
+
+.notification-btn svg {
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+}
+
+.notification-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: var(--danger);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.user-avatar:hover {
+    transform: scale(1.05);
+}
+
+/* ========================================
+   PAGE HEADER - Greeting
+   ======================================== */
+
+.page-header {
+    margin-bottom: 32px;
+}
+
+.greeting {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 6px 0;
+    letter-spacing: -0.02em;
+    transition: color 0.3s ease;
+}
+
+.greeting-subtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin: 0;
+    transition: color 0.3s ease;
+}
+
+/* ========================================
+   VIEW CONTAINER
+   ======================================== */
+
+.view-container {
+    min-height: 400px;
+}
+
+/* ========================================
+   LOADING STATE
+   ======================================== */
+
+.loading-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    gap: 16px;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #6366f1;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-screen p {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 70px;
+        padding: 16px 20px;
+    }
+
+    .search-container {
+        width: 200px;
+    }
+
+    .greeting {
+        font-size: 24px;
+    }
+}

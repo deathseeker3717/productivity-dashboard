@@ -1,0 +1,334 @@
+/**
+ * MonthSetup.css - Month Setup Modal Styles
+ */
+
+.month-setup-modal {
+    max-width: 520px;
+    width: 95%;
+    position: relative;
+    z-index: 1001;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal {
+    background: var(--bg-card);
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 10000;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 24px 24px 16px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-light);
+    background: var(--bg-hover);
+}
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.btn-icon:hover {
+    background: var(--bg-active);
+    color: var(--text);
+}
+
+.btn-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.month-setup-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex: 1;
+}
+
+.month-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--primary), #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.month-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.month-setup-header h2 {
+    margin-bottom: var(--space-1);
+}
+
+/* ========================================
+   SETUP STEPS
+   ======================================== */
+
+.setup-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4) var(--space-6);
+    background: var(--bg-hover);
+    gap: var(--space-3);
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+}
+
+.step.active {
+    color: var(--primary);
+}
+
+.step-number {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-full);
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    transition: all var(--transition-fast);
+}
+
+.step.active .step-number {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.step-line {
+    width: 60px;
+    height: 2px;
+    background: var(--border);
+}
+
+/* ========================================
+   SETUP SECTIONS
+   ======================================== */
+
+.setup-section h3 {
+    margin-bottom: var(--space-2);
+}
+
+.setup-section>p {
+    margin-bottom: var(--space-6);
+}
+
+/* Goals List */
+.goals-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.goal-input-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.goal-number {
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-full);
+    background: var(--primary-light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.goal-input-row .input {
+    flex: 1;
+}
+
+.goal-input-row .btn-icon.delete {
+    color: var(--danger);
+    opacity: 0.6;
+}
+
+.goal-input-row .btn-icon.delete:hover {
+    opacity: 1;
+    background: var(--danger-light);
+}
+
+/* Routines List */
+.routines-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.routine-input-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.routine-name {
+    flex: 2;
+}
+
+.category-select {
+    flex: 1;
+    min-width: 120px;
+    cursor: pointer;
+}
+
+.routine-input-row .btn-icon.delete {
+    color: var(--danger);
+    opacity: 0.6;
+}
+
+.routine-input-row .btn-icon.delete:hover {
+    opacity: 1;
+    background: var(--danger-light);
+}
+
+/* Add Button */
+.add-btn {
+    width: 100%;
+    justify-content: center;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    color: var(--text-muted);
+}
+
+.add-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--primary-50);
+}
+
+.add-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Routine Tip */
+.routine-tip {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    background: var(--warning-light);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-4);
+}
+
+.tip-icon {
+    color: var(--warning);
+    flex-shrink: 0;
+}
+
+.tip-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* ========================================
+   FOOTER
+   ======================================== */
+
+.footer-actions {
+    display: flex;
+    gap: var(--space-3);
+}
+
+.modal-footer .btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 640px) {
+    .month-setup-modal {
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 0;
+    }
+
+    .routine-input-row {
+        flex-wrap: wrap;
+    }
+
+    .routine-name {
+        flex: 1 1 100%;
+    }
+
+    .category-select {
+        flex: 1;
+    }
+}

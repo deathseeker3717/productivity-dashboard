@@ -1,0 +1,1000 @@
+/**
+ * habit-theme.css - Premium Habit Tracker Theme
+ * 
+ * Dribbble/Behance-style design with:
+ * - Soft pastel color palette
+ * - Large rounded corners (16-20px)
+ * - Warm, cozy, premium feel
+ * - Clean sans-serif typography
+ * - Lots of white space
+ */
+
+:root {
+    /* ========================================
+       PASTEL COLOR PALETTE
+       ======================================== */
+
+    /* Background */
+    --bg-beige: #f8f6f3;
+    --bg-cream: #fefdfb;
+    --bg-white: #ffffff;
+
+    /* Primary Actions */
+    --accent-green: #4ade80;
+    --accent-green-light: #dcfce7;
+    --accent-green-dark: #16a34a;
+
+    /* Secondary Actions */
+    --accent-orange: #fb923c;
+    --accent-orange-light: #fed7aa;
+
+    /* Cards */
+    --card-yellow: #fef3c7;
+    --card-yellow-warm: #fde68a;
+    --card-pink: #fce7f3;
+    --card-pink-dark: #f9a8d4;
+    --card-blue: #dbeafe;
+    --card-purple: #ede9fe;
+    --card-coral: #ffe4e1;
+
+    /* Text */
+    --text-dark: #1f2937;
+    --text-medium: #4b5563;
+    --text-light: #9ca3af;
+    --text-muted: #d1d5db;
+
+    /* UI Elements */
+    --border-light: #e5e7eb;
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.04);
+    --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.08);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+    /* Rounded Corners */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-2xl: 24px;
+    --radius-full: 9999px;
+
+    /* Spacing */
+    --gap-xs: 4px;
+    --gap-sm: 8px;
+    --gap-md: 12px;
+    --gap-lg: 16px;
+    --gap-xl: 20px;
+    --gap-2xl: 24px;
+    --gap-3xl: 32px;
+
+    /* Typography */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'Poppins', var(--font-family);
+}
+
+/* ========================================
+   GLOBAL RESETS FOR HABIT THEME
+   ======================================== */
+
+body.habit-theme {
+    background: var(--bg-beige);
+    font-family: var(--font-family);
+    color: var(--text-dark);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ========================================
+   MAIN CONTAINER - MACOS STYLE
+   ======================================== */
+
+.habit-container {
+    background: var(--bg-white);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-medium);
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+}
+
+/* MacOS Window Controls */
+.window-controls {
+    display: flex;
+    gap: 8px;
+    padding: 16px 20px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+}
+
+.window-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.window-dot.red {
+    background: #ff5f57;
+}
+
+.window-dot.yellow {
+    background: #febc2e;
+}
+
+.window-dot.green {
+    background: #28c840;
+}
+
+/* Header Bar */
+.habit-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px 16px 100px;
+    border-bottom: 1px solid var(--border-light);
+    background: var(--bg-white);
+}
+
+.header-nav {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.nav-arrows {
+    display: flex;
+    gap: 4px;
+}
+
+.nav-arrow {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-medium);
+    transition: all 0.15s ease;
+}
+
+.nav-arrow:hover {
+    background: var(--bg-beige);
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.breadcrumb-item {
+    color: var(--text-medium);
+}
+
+.breadcrumb-item.active {
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+.breadcrumb-separator {
+    color: var(--text-muted);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.icon-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-medium);
+    transition: all 0.15s ease;
+}
+
+.icon-btn:hover {
+    background: var(--bg-beige);
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    background: var(--card-coral);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+/* ========================================
+   MAIN GRID LAYOUT
+   ======================================== */
+
+.habit-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr 300px;
+    gap: var(--gap-2xl);
+    padding: var(--gap-3xl);
+    min-height: calc(100vh - 200px);
+}
+
+/* ========================================
+   LEFT COLUMN
+   ======================================== */
+
+.left-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-2xl);
+}
+
+/* Greeting */
+.greeting-section {
+    padding-bottom: var(--gap-lg);
+}
+
+.greeting-title {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--text-dark);
+    line-height: 1.2;
+    margin-bottom: var(--gap-sm);
+}
+
+.greeting-date {
+    font-size: 13px;
+    color: var(--text-light);
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-md);
+}
+
+.btn-new-habit {
+    background: var(--accent-green);
+    color: white;
+    border: none;
+    border-radius: var(--radius-full);
+    padding: 14px 24px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-new-habit:hover {
+    background: var(--accent-green-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
+}
+
+.btn-browse {
+    background: var(--bg-white);
+    color: var(--text-dark);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-full);
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-browse:hover {
+    background: var(--bg-beige);
+}
+
+/* Calendar Widget */
+.calendar-widget {
+    background: var(--bg-white);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--gap-lg);
+}
+
+.calendar-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.calendar-nav {
+    display: flex;
+    gap: 4px;
+}
+
+.cal-nav-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-light);
+    background: var(--bg-white);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--text-medium);
+}
+
+.cal-nav-btn.next {
+    background: var(--accent-orange);
+    border-color: var(--accent-orange);
+    color: white;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.cal-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    color: var(--text-medium);
+}
+
+.cal-day:hover {
+    background: var(--bg-beige);
+}
+
+.cal-day.today {
+    background: var(--accent-green);
+    color: white;
+    font-weight: 600;
+}
+
+.cal-day.active {
+    background: var(--text-dark);
+    color: white;
+}
+
+.cal-day.has-data {
+    background: var(--text-dark);
+    color: white;
+    font-weight: 500;
+}
+
+.calendar-growth {
+    margin-top: var(--gap-lg);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--accent-green-dark);
+}
+
+.calendar-growth svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* App Download Banner */
+.app-banner {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: var(--radius-xl);
+    padding: var(--gap-2xl);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.app-banner-icons {
+    display: flex;
+    gap: 8px;
+    margin-bottom: var(--gap-lg);
+}
+
+.app-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.app-banner h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.app-banner p {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: var(--gap-lg);
+}
+
+.btn-download {
+    background: var(--bg-white);
+    color: var(--text-dark);
+    border: none;
+    border-radius: var(--radius-full);
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+}
+
+/* ========================================
+   CENTER COLUMN
+   ======================================== */
+
+.center-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-2xl);
+}
+
+/* Weather Card */
+.weather-card {
+    background: var(--card-yellow);
+    border-radius: var(--radius-xl);
+    padding: var(--gap-2xl);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.weather-left {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--gap-xl);
+}
+
+.weather-illustration {
+    width: 120px;
+    height: 120px;
+    position: relative;
+}
+
+.weather-illustration img,
+.weather-illustration svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.weather-temp {
+    font-size: 48px;
+    font-weight: 600;
+    color: var(--text-dark);
+    line-height: 1;
+}
+
+.weather-stats {
+    display: flex;
+    gap: var(--gap-2xl);
+}
+
+.weather-stat {
+    text-align: center;
+}
+
+.weather-stat-label {
+    font-size: 11px;
+    color: var(--text-light);
+    margin-bottom: 4px;
+}
+
+.weather-stat-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+/* View Details Link */
+.view-details {
+    font-size: 12px;
+    color: var(--text-light);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+}
+
+.view-details:hover {
+    color: var(--text-medium);
+}
+
+/* Should Do Cards */
+.should-do-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-lg);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.should-do-cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-md);
+}
+
+.suggestion-card {
+    background: var(--bg-white);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: var(--gap-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--gap-lg);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.suggestion-card:hover {
+    box-shadow: var(--shadow-card);
+    transform: translateY(-2px);
+}
+
+.suggestion-emoji {
+    font-size: 32px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-beige);
+    border-radius: var(--radius-lg);
+}
+
+.suggestion-content h4 {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+}
+
+.suggestion-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+.suggestion-arrow {
+    margin-left: auto;
+    color: var(--text-muted);
+}
+
+/* Running Competition Card */
+.competition-card {
+    background: var(--bg-white);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-xl);
+    padding: var(--gap-2xl);
+}
+
+.competition-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--gap-lg);
+}
+
+.competition-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.competition-meta {
+    display: flex;
+    gap: var(--gap-lg);
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+.competition-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.competition-action {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: var(--accent-orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.competition-map {
+    height: 120px;
+    background: linear-gradient(180deg, #e0f2fe 0%, #bae6fd 100%);
+    border-radius: var(--radius-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.map-label {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    font-size: 11px;
+    color: var(--text-medium);
+    background: rgba(255, 255, 255, 0.8);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+}
+
+/* ========================================
+   RIGHT COLUMN
+   ======================================== */
+
+.right-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-2xl);
+}
+
+/* Today's Todos */
+.todos-section {
+    flex: 1;
+}
+
+.todo-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-md);
+    margin-top: var(--gap-lg);
+}
+
+.todo-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--gap-md);
+    padding: var(--gap-md) 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.todo-item:last-child {
+    border-bottom: none;
+}
+
+.todo-emoji {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card-yellow);
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+}
+
+.todo-content {
+    flex: 1;
+}
+
+.todo-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+}
+
+.todo-item.completed .todo-title {
+    text-decoration: line-through;
+    color: var(--text-light);
+}
+
+.todo-meta {
+    display: flex;
+    gap: var(--gap-lg);
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+.todo-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.todo-checkbox {
+    width: 22px;
+    height: 22px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border-light);
+    background: var(--bg-white);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+}
+
+.todo-checkbox.checked {
+    background: var(--accent-green);
+    border-color: var(--accent-green);
+    color: white;
+}
+
+/* Integration Cards */
+.spotify-card {
+    background: var(--bg-white);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-xl);
+    padding: var(--gap-2xl);
+    text-align: center;
+}
+
+.spotify-logo {
+    font-size: 40px;
+    margin-bottom: var(--gap-md);
+}
+
+.spotify-card h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.spotify-card p {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: var(--gap-lg);
+}
+
+.btn-link-account {
+    background: var(--accent-green);
+    color: white;
+    border: none;
+    border-radius: var(--radius-full);
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.integrations-card {
+    background: var(--card-coral);
+    border-radius: var(--radius-xl);
+    padding: var(--gap-2xl);
+}
+
+.integrations-card h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+}
+
+.integrations-card p {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+/* ========================================
+   ANALYTICS SECTION
+   ======================================== */
+
+.analytics-section {
+    grid-column: 1 / -1;
+    background: var(--bg-white);
+    border-top: 1px solid var(--border-light);
+    padding-top: var(--gap-2xl);
+}
+
+.analytics-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--gap-2xl);
+}
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--gap-3xl);
+}
+
+/* Positive Habits Card */
+.positive-habits-card {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: var(--radius-xl);
+    padding: var(--gap-2xl);
+    color: white;
+    width: 160px;
+    text-align: center;
+}
+
+.positive-habits-emoji {
+    font-size: 32px;
+    margin-bottom: var(--gap-md);
+}
+
+.positive-habits-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 4px;
+}
+
+.positive-habits-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent-green);
+}
+
+/* Favorite Habits Chart */
+.favorite-habits {
+    flex: 1;
+}
+
+.habits-chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--gap-lg);
+}
+
+.habits-chart-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.habits-chart-filters {
+    display: flex;
+    gap: var(--gap-md);
+    align-items: center;
+}
+
+.habits-search {
+    padding: 8px 12px;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    font-size: 12px;
+    width: 120px;
+}
+
+.habits-date {
+    padding: 8px 12px;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    font-size: 12px;
+    background: var(--bg-white);
+    cursor: pointer;
+}
+
+.habits-bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--gap-lg);
+    height: 140px;
+    padding: var(--gap-lg) 0;
+}
+
+.habit-bar-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--gap-sm);
+    flex: 1;
+}
+
+.habit-bar {
+    width: 100%;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    background: var(--card-yellow);
+    transition: all 0.3s ease;
+    min-height: 20px;
+}
+
+.habit-bar.active {
+    background: linear-gradient(180deg, var(--accent-orange) 0%, var(--accent-orange-light) 100%);
+}
+
+.habit-bar-label {
+    font-size: 10px;
+    color: var(--text-light);
+    text-align: center;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 1200px) {
+    .habit-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .left-column {
+        order: 1;
+    }
+
+    .center-column {
+        order: 2;
+    }
+
+    .right-column {
+        grid-column: 1 / -1;
+        order: 3;
+    }
+}
+
+@media (max-width: 768px) {
+    .habit-grid {
+        grid-template-columns: 1fr;
+        padding: var(--gap-lg);
+    }
+
+    .habit-container {
+        margin: 16px;
+        border-radius: var(--radius-xl);
+    }
+
+    .window-controls {
+        display: none;
+    }
+
+    .habit-header {
+        padding-left: 16px;
+    }
+
+    .greeting-title {
+        font-size: 24px;
+    }
+}

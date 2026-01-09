@@ -1,0 +1,328 @@
+/**
+ * TaskList.css - Notion-Style Task List
+ * 
+ * Feels like structured notes, not checklists.
+ */
+
+.task-list {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+}
+
+.task-list.locked-view {
+    opacity: 0.8;
+}
+
+.task-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--divider);
+}
+
+.header-info h3 {
+    font-size: var(--text-md);
+    font-weight: var(--font-semibold);
+    color: var(--text);
+    margin-bottom: 2px;
+}
+
+.task-count {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+}
+
+.locked-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    padding: var(--space-1) var(--space-2);
+    background: var(--bg-hover);
+    border-radius: var(--radius-sm);
+}
+
+.locked-badge svg {
+    width: 11px;
+    height: 11px;
+}
+
+/* Add Task Form */
+.add-task-form {
+    margin-bottom: var(--space-4);
+}
+
+.input-row {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.task-input {
+    flex: 1;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+}
+
+.task-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--primary-50);
+}
+
+.category-select {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    background: var(--bg-card);
+    min-width: 100px;
+}
+
+.add-btn {
+    padding: var(--space-2) var(--space-4);
+}
+
+/* Tasks Container */
+.tasks-container {
+    min-height: 120px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--space-8);
+    color: var(--text-muted);
+}
+
+.empty-icon {
+    display: block;
+    margin-bottom: var(--space-2);
+    opacity: 0.5;
+}
+
+.empty-icon svg {
+    width: 32px;
+    height: 32px;
+}
+
+.empty-hint {
+    font-size: var(--text-sm);
+}
+
+/* Task Items - Like Structured Notes */
+.task-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.task-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--divider);
+    transition: background var(--transition-fast);
+}
+
+.task-item:last-child {
+    border-bottom: none;
+}
+
+.task-item:hover {
+    background: var(--bg-hover);
+    margin: 0 calc(var(--space-2) * -1);
+    padding-left: var(--space-2);
+    padding-right: var(--space-2);
+    border-radius: var(--radius-sm);
+}
+
+.task-item.completed {
+    opacity: 0.6;
+}
+
+.task-item.completed .task-name {
+    text-decoration: line-through;
+    color: var(--text-muted);
+}
+
+/* Checkbox - Simple & Minimal */
+.checkbox {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--text-faint);
+    border-radius: 3px;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: transparent;
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: all 0.15s ease;
+}
+
+.checkbox:hover {
+    border-color: var(--text-muted);
+}
+
+.checkbox.checked {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.checkbox:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+
+/* Task Content */
+.task-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.task-name {
+    font-size: var(--text-sm);
+    color: var(--text);
+    line-height: var(--leading-relaxed);
+}
+
+.task-meta {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-1);
+    flex-wrap: wrap;
+}
+
+.category-tag {
+    font-size: var(--text-xs);
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-hover);
+    color: var(--text-muted);
+}
+
+.category-tag.work {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.category-tag.personal {
+    background: rgba(139, 92, 246, 0.1);
+    color: #8b5cf6;
+}
+
+.category-tag.health {
+    background: rgba(46, 139, 87, 0.1);
+    color: #2e8b57;
+}
+
+.category-tag.learning {
+    background: rgba(203, 145, 47, 0.1);
+    color: #cb912f;
+}
+
+.category-tag.other {
+    background: var(--bg-hover);
+    color: var(--text-muted);
+}
+
+.routine-badge {
+    font-size: var(--text-xs);
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    background: var(--primary-50);
+    color: var(--primary);
+}
+
+/* Task Actions */
+.task-actions {
+    display: flex;
+    gap: var(--space-1);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.task-item:hover .task-actions {
+    opacity: 1;
+}
+
+.action-btn {
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: all var(--transition-fast);
+}
+
+.action-btn:hover {
+    background: var(--bg-hover);
+}
+
+.action-btn.delete:hover {
+    background: var(--danger-light);
+    color: var(--danger);
+}
+
+.action-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Footer */
+.task-list-footer {
+    margin-top: var(--space-4);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--divider);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.task-list-footer .progress-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--bg-hover);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.task-list-footer .progress-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.3s ease;
+    background: var(--text-muted);
+}
+
+.task-list-footer .progress-fill.complete {
+    background: var(--success);
+}
+
+.task-list-footer .progress-fill.partial {
+    background: var(--warning);
+}
+
+.task-list-footer .progress-fill.missed {
+    background: var(--danger);
+}
+
+.progress-text {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    white-space: nowrap;
+}

@@ -1,0 +1,457 @@
+/**
+ * Dashboard.css - Animated Dashboard Styles
+ * 
+ * Features animations for stat cards, progress bars, and icons.
+ */
+
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes progressFill {
+    from {
+        width: 0;
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes iconBounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+/* ========================================
+   OVERVIEW SECTION
+   ======================================== */
+
+.overview-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.section-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* Stats Grid - Animated Cards */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeInUp 0.5s ease-out backwards;
+}
+
+.stat-card:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.stat-card:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.stat-card:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.stat-card:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    border-color: #d1d5db;
+}
+
+.stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--bg-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover .stat-icon {
+    animation: iconBounce 0.5s ease;
+}
+
+.stat-icon svg {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover .stat-icon svg {
+    transform: scale(1.1);
+}
+
+.stat-icon.success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.stat-icon.warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.stat-icon.primary {
+    background: var(--accent-light);
+    color: var(--accent);
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover .stat-value {
+    transform: scale(1.02);
+}
+
+.stat-label {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+/* Daily Progress - Animated Bar */
+.daily-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    animation: fadeIn 0.6s ease-out 0.3s backwards;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.progress-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.progress-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+}
+
+.progress-value.complete {
+    color: #10b981;
+}
+
+.progress-value.partial {
+    color: #f59e0b;
+}
+
+.progress-value.missed {
+    color: #ef4444;
+}
+
+.progress-bar {
+    height: 8px;
+    background: var(--bg-hover);
+    border-radius: 100px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: linear-gradient(90deg, var(--accent) 0%, #8b5cf6 100%);
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: progressFill 1s ease-out 0.5s backwards;
+}
+
+.progress-fill.complete {
+    background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+}
+
+.progress-fill.partial {
+    background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+}
+
+.progress-fill.missed {
+    background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+}
+
+/* ========================================
+   GOALS SECTION
+   ======================================== */
+
+.goals-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: fadeInUp 0.5s ease-out 0.1s backwards;
+}
+
+.goals-section .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.add-goal-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.add-goal-btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+.add-goal-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.goals-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.goals-empty {
+    padding: 32px;
+    background: var(--bg-card);
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    text-align: center;
+}
+
+.goals-empty p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .goals-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ========================================
+   DASHBOARD GRID
+   ======================================== */
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+    animation: fadeIn 0.5s ease-out 0.2s backwards;
+}
+
+.dashboard-main {
+    min-width: 0;
+}
+
+.dashboard-sidebar {
+    min-width: 0;
+}
+
+/* ========================================
+   PERFORMANCE SECTION
+   ======================================== */
+
+.performance-section {
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    animation: fadeInUp 0.5s ease-out 0.4s backwards;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 1100px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-sidebar {
+        order: -1;
+    }
+}
+
+@media (max-width: 900px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card {
+        padding: 16px;
+    }
+}
+
+/* ========================================
+   HEADER LAYOUT REFACTOR
+   ======================================== */
+
+.dashboard-header-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.dashboard-header-greeting {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.dashboard-header-greeting h1 {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0;
+    letter-spacing: -1px;
+}
+
+.dashboard-header-greeting p {
+    font-size: 16px;
+    color: var(--text-muted);
+    margin: 8px 0 0 0;
+    font-weight: 500;
+}
+
+/* Hero widget in header */
+.dashboard-header-hero {
+    flex: 0 0 auto;
+    width: 200px;
+    /* Constrain width */
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 1000px) {
+    .dashboard-header-row {
+        flex-wrap: wrap;
+    }
+
+    .dashboard-header-greeting {
+        order: -1;
+        width: 100%;
+        margin-bottom: 16px;
+    }
+}
