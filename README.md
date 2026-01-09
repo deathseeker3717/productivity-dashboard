@@ -45,7 +45,3 @@ src/
 ├── assets/          # Static assets
 └── design-system.css # Global design tokens (colors, typography)
 ```
-
-## License
-
-MIT
