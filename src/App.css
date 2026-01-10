@@ -247,6 +247,7 @@
 
 .app-root {
     opacity: 0;
+    height: 100%;
 }
 
 .app-root.boot-ready {
