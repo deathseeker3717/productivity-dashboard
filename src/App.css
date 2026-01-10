@@ -37,6 +37,12 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 32px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--bg);
+    padding: 24px 0;
+    margin: -24px 0 32px 0;
 }
 
 .search-container {
@@ -132,6 +138,8 @@
 .user-avatar {
     width: 40px;
     height: 40px;
+    min-width: 40px;
+    min-height: 40px;
     border-radius: 50%;
     background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
     color: white;
@@ -142,6 +150,8 @@
     justify-content: center;
     cursor: pointer;
     transition: transform 0.2s ease;
+    flex-shrink: 0;
+    aspect-ratio: 1;
 }
 
 .user-avatar:hover {
