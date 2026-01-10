@@ -146,6 +146,90 @@ const WeatherIcons = {
     )
 };
 
+// Calculate moon phase (0-7: new, waxing crescent, first quarter, waxing gibbous, full, waning gibbous, last quarter, waning crescent)
+const getMoonPhase = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+
+    // Simplified moon phase calculation (Conway's method)
+    let r = year % 100;
+    r %= 19;
+    if (r > 9) r -= 19;
+    r = ((r * 11) % 30) + month + day;
+    if (month < 3) r += 2;
+    r -= ((year < 2000) ? 4 : 8.3);
+    r = Math.floor(r + 0.5) % 30;
+    if (r < 0) r += 30;
+
+    // Convert to 0-7 phase index
+    return Math.floor(r / 3.75);
+};
+
+// Moon Phase SVG Component
+const MoonPhaseSVG = ({ phase }) => {
+    // Phase 0 = new moon, 4 = full moon
+    const phases = [
+        { name: 'New Moon', fill: '#2d3748', shadow: 0 },
+        { name: 'Waxing Crescent', fill: '#f7fafc', shadowDir: 'right', shadow: 0.75 },
+        { name: 'First Quarter', fill: '#f7fafc', shadowDir: 'right', shadow: 0.5 },
+        { name: 'Waxing Gibbous', fill: '#f7fafc', shadowDir: 'right', shadow: 0.25 },
+        { name: 'Full Moon', fill: '#f7fafc', shadow: 0 },
+        { name: 'Waning Gibbous', fill: '#f7fafc', shadowDir: 'left', shadow: 0.25 },
+        { name: 'Last Quarter', fill: '#f7fafc', shadowDir: 'left', shadow: 0.5 },
+        { name: 'Waning Crescent', fill: '#f7fafc', shadowDir: 'left', shadow: 0.75 }
+    ];
+
+    const current = phases[phase] || phases[4];
+    const isNew = phase === 0;
+    const isFull = phase === 4;
+
+    return (
+        <svg className="moon-phase-svg" viewBox="0 0 50 50" width="40" height="40">
+            <defs>
+                <radialGradient id="moonGlow">
+                    <stop offset="0%" stopColor="rgba(255,255,255,0.3)" />
+                    <stop offset="100%" stopColor="transparent" />
+                </radialGradient>
+                <clipPath id="moonClip">
+                    <circle cx="25" cy="25" r="18" />
+                </clipPath>
+            </defs>
+
+            {/* Glow effect */}
+            {!isNew && (
+                <circle cx="25" cy="25" r="24" fill="url(#moonGlow)" />
+            )}
+
+            {/* Moon base */}
+            <circle cx="25" cy="25" r="18" fill={isNew ? '#1a1a2e' : '#e8e8e8'} stroke={isNew ? '#3d3d5c' : 'none'} strokeWidth="1" />
+
+            {/* Shadow for phases (using ellipse to create crescent effect) */}
+            {!isNew && !isFull && current.shadow > 0 && (
+                <ellipse
+                    cx={current.shadowDir === 'right' ? 25 + (18 * (1 - current.shadow)) : 25 - (18 * (1 - current.shadow))}
+                    cy="25"
+                    rx={18 * current.shadow}
+                    ry="18"
+                    fill="#1a1a2e"
+                    clipPath="url(#moonClip)"
+                />
+            )}
+
+            {/* Moon craters for texture (only on lit parts) */}
+            {!isNew && (
+                <g opacity="0.15" clipPath="url(#moonClip)">
+                    <circle cx="20" cy="20" r="3" fill="#87878733" />
+                    <circle cx="30" cy="28" r="4" fill="#87878733" />
+                    <circle cx="18" cy="32" r="2" fill="#87878733" />
+                    <circle cx="28" cy="18" r="2.5" fill="#87878733" />
+                </g>
+            )}
+        </svg>
+    );
+};
+
 // Enhanced Background Scene with dynamic weather effects
 const BackgroundScene = ({ condition, isNight }) => {
     const [shootingStarActive, setShootingStarActive] = useState(false);
@@ -215,8 +299,11 @@ const BackgroundScene = ({ condition, isNight }) => {
                     <div className={`shooting-star s1 ${shootingStarActive ? 'active' : ''}`} />
                     <div className={`shooting-star s2 ${shootingStarActive ? 'active' : ''}`} style={{ animationDelay: '0.2s' }} />
 
+                    {/* Dynamic Moon Phase */}
                     {condition === 'clear' && (
-                        <div className="moon-glow" />
+                        <div className="moon-container">
+                            <MoonPhaseSVG phase={getMoonPhase()} />
+                        </div>
                     )}
                 </div>
             )}

@@ -266,29 +266,32 @@
     }
 }
 
-.moon-glow {
+/* Moon container for dynamic moon phase */
+.moon-container {
     position: absolute;
-    top: 20px;
-    right: 40px;
-    width: 60px;
-    height: 60px;
-    /* Changed from golden to subtle white/blue for moon effect */
-    background: radial-gradient(circle, rgba(200, 220, 255, 0.2) 0%, transparent 70%);
-    border-radius: 50%;
-    animation: moonGlow 4s ease-in-out infinite;
+    top: 15px;
+    right: 35px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: moonFloat 6s ease-in-out infinite;
 }
 
-@keyframes moonGlow {
+.moon-phase-svg {
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+}
+
+@keyframes moonFloat {
 
     0%,
     100% {
-        transform: scale(1);
-        opacity: 0.4;
+        transform: translateY(0);
     }
 
     50% {
-        transform: scale(1.1);
-        opacity: 0.6;
+        transform: translateY(-4px);
     }
 }
 
