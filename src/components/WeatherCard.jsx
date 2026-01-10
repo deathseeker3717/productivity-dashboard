@@ -11,6 +11,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useApp } from '../context/AppContext';
 import './WeatherCard.css';
 
 // Weather condition to theme mapping
@@ -456,152 +457,15 @@ const DEFAULT_WEATHER = {
 const DEFAULT_LOCATION = { city: 'Your City', country: '' };
 
 function WeatherCard() {
-    const [weather, setWeather] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [location, setLocation] = useState({ city: 'Loading...', country: '' });
+    // Use cached weather data from AppContext
+    const { weatherData, weatherLoading } = useApp();
+
     const [isTransitioning, setIsTransitioning] = useState(false);
 
-    const isMountedRef = useRef(true);
-    const abortControllerRef = useRef(null);
-
-    useEffect(() => {
-        isMountedRef.current = true;
-        return () => {
-            isMountedRef.current = false;
-            // Cancel any pending requests on unmount
-            if (abortControllerRef.current) {
-                abortControllerRef.current.abort();
-            }
-        };
-    }, []);
-
-    const fetchWeather = useCallback(async (lat, lon) => {
-        // Cancel previous request if exists
-        if (abortControllerRef.current) {
-            abortControllerRef.current.abort();
-        }
-
-        // Create new abort controller
-        abortControllerRef.current = new AbortController();
-        const signal = abortControllerRef.current.signal;
-
-        try {
-            const weatherRes = await fetch(
-                `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,surface_pressure,wind_speed_10m&timezone=auto`,
-                { signal }
-            );
-
-            if (!weatherRes.ok) throw new Error('Weather fetch failed');
-
-            const weatherData = await weatherRes.json();
-            const current = weatherData?.current;
-
-            if (!current || !isMountedRef.current) {
-                throw new Error('Invalid weather data');
-            }
-
-            // Reverse geocode for city name
-            let cityName = 'Your City';
-            let countryName = '';
-
-            try {
-                const geoRes = await fetch(
-                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&accept-language=en`,
-                    { signal }
-                );
-                const geoData = await geoRes.json();
-                cityName = geoData?.address?.city || geoData?.address?.town || geoData?.address?.village || geoData?.address?.state || 'Your City';
-                countryName = geoData?.address?.country || '';
-            } catch {
-                // Use default location on geo error
-            }
-
-            if (!isMountedRef.current) return;
-
-            setIsTransitioning(true);
-
-            setTimeout(() => {
-                if (!isMountedRef.current) return;
-
-                setWeather({
-                    temp: Math.round(current.temperature_2m || 0),
-                    condition: mapWeatherCode(current.weather_code),
-                    description: getWeatherDescription(current.weather_code),
-                    humidity: Math.round(current.relative_humidity_2m || 0),
-                    windSpeed: Math.round(current.wind_speed_10m || 0),
-                    pressure: Math.round(current.surface_pressure || 0),
-                    feelsLike: Math.round(current.apparent_temperature || 0)
-                });
-                setLocation({ city: cityName, country: countryName });
-                setLoading(false);
-
-                setTimeout(() => {
-                    if (isMountedRef.current) {
-                        setIsTransitioning(false);
-                    }
-                }, 300);
-            }, 150);
-        } catch (err) {
-            // Check if this was an abort
-            if (err.name === 'AbortError') {
-                return;
-            }
-
-            // Fallback to default data on any error
-            if (isMountedRef.current) {
-                setWeather(DEFAULT_WEATHER);
-                setLocation(DEFAULT_LOCATION);
-                setLoading(false);
-            }
-        }
-    }, []);
-
-    useEffect(() => {
-        const initWeather = () => {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => {
-                        if (isMountedRef.current) {
-                            fetchWeather(pos.coords.latitude, pos.coords.longitude);
-                        }
-                    },
-                    () => {
-                        // Fallback to default location on geolocation error
-                        if (isMountedRef.current) {
-                            fetchWeather(28.6139, 77.2090);
-                        }
-                    },
-                    { timeout: 5000, enableHighAccuracy: false }
-                );
-            } else {
-                fetchWeather(28.6139, 77.2090);
-            }
-        };
-
-        initWeather();
-
-        // Refresh every 10 minutes
-        const interval = setInterval(() => {
-            if (!isMountedRef.current) return;
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => {
-                        if (isMountedRef.current) {
-                            fetchWeather(pos.coords.latitude, pos.coords.longitude);
-                        }
-                    },
-                    () => {
-                        if (isMountedRef.current) {
-                            fetchWeather(28.6139, 77.2090);
-                        }
-                    }
-                );
-            }
-        }, 600000);
-
-        return () => clearInterval(interval);
-    }, [fetchWeather]);
+    // Derive display values from context data
+    const weather = weatherData;
+    const loading = weatherLoading;
+    const location = weatherData?.location || DEFAULT_LOCATION;
 
     // Check if night time (6pm - 6am)
     const isNight = () => {
@@ -623,6 +487,7 @@ function WeatherCard() {
             </div>
         );
     }
+
 
     return (
         <div

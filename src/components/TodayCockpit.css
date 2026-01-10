@@ -1,0 +1,267 @@
+/**
+ * TodayCockpit.css - Trading Terminal Aesthetic
+ * 
+ * Premium, data-first design with large clear numbers.
+ * Calm professional aesthetic like a personal performance console.
+ */
+
+.today-cockpit {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle gradient overlay */
+.today-cockpit::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.02) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+/* Hero Section - Primary Metric */
+.cockpit-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    z-index: 1;
+}
+
+.cockpit-time-badge {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.cockpit-time-badge .time-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.5px;
+}
+
+.cockpit-time-badge .date-value {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.cockpit-primary {
+    text-align: center;
+    flex: 1;
+}
+
+.cockpit-primary .primary-value {
+    font-size: 56px;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1;
+    letter-spacing: -2px;
+    font-variant-numeric: tabular-nums;
+}
+
+.cockpit-primary .primary-value .unit {
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-left: 2px;
+}
+
+.cockpit-primary .primary-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Status Indicator */
+.cockpit-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cockpit-status .status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: statusPulse 2s ease-in-out infinite;
+}
+
+.cockpit-status.improving {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+}
+
+.cockpit-status.improving .status-indicator {
+    background: #22c55e;
+}
+
+.cockpit-status.stable {
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+}
+
+.cockpit-status.stable .status-indicator {
+    background: #6366f1;
+}
+
+.cockpit-status.declining {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.cockpit-status.declining .status-indicator {
+    background: #ef4444;
+}
+
+@keyframes statusPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.6;
+        transform: scale(0.9);
+    }
+}
+
+/* Metrics Grid */
+.cockpit-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    position: relative;
+    z-index: 1;
+}
+
+.metric-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.metric-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.metric-card.accent {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(99, 102, 241, 0.02) 100%);
+    border-color: rgba(99, 102, 241, 0.2);
+}
+
+.metric-card .metric-value {
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.metric-card .metric-value .unit {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-muted);
+}
+
+.metric-card .metric-value.positive {
+    color: #22c55e;
+}
+
+.metric-card .metric-value.negative {
+    color: #ef4444;
+}
+
+.metric-card .metric-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 8px;
+}
+
+.metric-card .metric-detail {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    opacity: 0.7;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .cockpit-metrics {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .cockpit-primary .primary-value {
+        font-size: 42px;
+    }
+}
+
+@media (max-width: 640px) {
+    .cockpit-hero {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+    }
+
+    .cockpit-time-badge {
+        align-items: center;
+    }
+
+    .cockpit-metrics {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .metric-card .metric-value {
+        font-size: 24px;
+    }
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .today-cockpit {
+    background: rgba(30, 30, 40, 0.5);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .cockpit-primary .primary-value {
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .metric-card {
+    background: rgba(20, 20, 30, 0.5);
+    border-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .metric-card.accent {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(99, 102, 241, 0.04) 100%);
+}

@@ -156,6 +156,11 @@ export function AppProvider({ children }) {
     const clockIntervalRef = useRef(null);
     const isMountedRef = useRef(true);
 
+    // Weather State (Cached across page navigation)
+    const [weatherData, setWeatherData] = useState(null);
+    const [weatherLoading, setWeatherLoading] = useState(true);
+    const weatherFetchedRef = useRef(false);
+
     // ============================================
     // UNIFIED NAVIGATION FUNCTIONS
     // These ensure all components update together
@@ -922,6 +927,99 @@ export function AppProvider({ children }) {
     }, [data]);
 
     // ============================================
+    // WEATHER SYSTEM (Cached)
+    // ============================================
+
+    const fetchWeatherData = useCallback(async (lat, lon) => {
+        try {
+            const weatherRes = await fetch(
+                `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,surface_pressure,wind_speed_10m&timezone=auto`
+            );
+            if (!weatherRes.ok) throw new Error('Weather fetch failed');
+            const data = await weatherRes.json();
+            const current = data?.current;
+            if (!current) throw new Error('Invalid data');
+
+            // Weather code mapping
+            const mapCode = (code) => {
+                if (code === 0) return 'clear';
+                if ([1, 2, 3].includes(code)) return 'clouds';
+                if ([45, 48].includes(code)) return 'mist';
+                if ([51, 53, 55, 56, 57].includes(code)) return 'drizzle';
+                if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return 'rain';
+                if ([71, 73, 75, 77, 85, 86].includes(code)) return 'snow';
+                if ([95, 96, 99].includes(code)) return 'thunderstorm';
+                return 'clouds';
+            };
+
+            const descMap = {
+                0: 'Clear Sky', 1: 'Mainly Clear', 2: 'Partly Cloudy', 3: 'Overcast',
+                45: 'Foggy', 51: 'Light Drizzle', 61: 'Slight Rain', 63: 'Moderate Rain',
+                65: 'Heavy Rain', 71: 'Slight Snow', 95: 'Thunderstorm'
+            };
+
+            // Get city name
+            let cityName = 'Your City', countryName = '';
+            try {
+                const geoRes = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&accept-language=en`
+                );
+                const geoData = await geoRes.json();
+                cityName = geoData?.address?.city || geoData?.address?.town || geoData?.address?.state || 'Your City';
+                countryName = geoData?.address?.country || '';
+            } catch { /* ignore */ }
+
+            if (isMountedRef.current) {
+                setWeatherData({
+                    temp: Math.round(current.temperature_2m || 0),
+                    condition: mapCode(current.weather_code),
+                    description: descMap[current.weather_code] || 'Unknown',
+                    humidity: Math.round(current.relative_humidity_2m || 0),
+                    windSpeed: Math.round(current.wind_speed_10m || 0),
+                    pressure: Math.round(current.surface_pressure || 0),
+                    feelsLike: Math.round(current.apparent_temperature || 0),
+                    location: { city: cityName, country: countryName },
+                    fetchedAt: Date.now()
+                });
+                setWeatherLoading(false);
+            }
+        } catch {
+            if (isMountedRef.current) {
+                setWeatherData({
+                    temp: 22, condition: 'clear', description: 'Clear Sky',
+                    humidity: 65, windSpeed: 12, pressure: 1013, feelsLike: 21,
+                    location: { city: 'Your City', country: '' }, fetchedAt: Date.now()
+                });
+                setWeatherLoading(false);
+            }
+        }
+    }, []);
+
+    // Initial weather fetch (only once)
+    useEffect(() => {
+        if (weatherFetchedRef.current) return;
+        weatherFetchedRef.current = true;
+
+        const initWeather = () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => fetchWeatherData(pos.coords.latitude, pos.coords.longitude),
+                    () => fetchWeatherData(28.6139, 77.2090),
+                    { timeout: 5000, enableHighAccuracy: false }
+                );
+            } else {
+                fetchWeatherData(28.6139, 77.2090);
+            }
+        };
+
+        initWeather();
+
+        // Refresh every 10 minutes
+        const interval = setInterval(initWeather, 10 * 60 * 1000);
+        return () => clearInterval(interval);
+    }, [fetchWeatherData]);
+
+    // ============================================
     // CONTEXT VALUE
     // ============================================
 
@@ -938,6 +1036,10 @@ export function AppProvider({ children }) {
         viewMonth,
         viewDate,
         selectedDate, // Legacy alias for viewDate
+
+        // Weather (Cached)
+        weatherData,
+        weatherLoading,
 
         // View State Controls
         activeView,
@@ -1018,6 +1120,7 @@ export function AppProvider({ children }) {
         data, currentDate, currentMonth, currentYear, currentTime,
         viewYear, viewMonth, viewDate, selectedDate, activeView,
         showMonthSetup, isLoading, isDataReady,
+        weatherData, weatherLoading,
         navigateToYear, navigateToMonth, selectDate, resetToToday,
         addTask, toggleTask, editTask, deleteTask,
         goals, addGoal, updateGoal, deleteGoal, updateGoalProgress, setGoalProgress,

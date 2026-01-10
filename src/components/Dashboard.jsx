@@ -14,6 +14,7 @@ import Performance from './Performance';
 import GoalCard from './GoalCard';
 import TopStats from './TopStats';
 import WeatherCard from './WeatherCard';
+import TodayCockpit from './TodayCockpit';
 import './Dashboard.css';
 
 
@@ -94,6 +95,9 @@ function Dashboard() {
 
 
             </div>
+
+            {/* Today Cockpit - Primary Entry Point */}
+            <TodayCockpit />
 
             {/* Top Stats Bar */}
             <div style={{ marginBottom: '32px' }}>
