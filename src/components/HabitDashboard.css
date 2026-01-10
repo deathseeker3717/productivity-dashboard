@@ -12,12 +12,13 @@
     overflow: hidden;
 }
 
-/* Decorative Blobs */
+/* Decorative Blobs - Hidden to prevent visual artifacts during transitions */
 .decorative-blob {
     position: absolute;
     pointer-events: none;
-    opacity: 0.03;
-    z-index: 0;
+    opacity: 0;
+    z-index: -1;
+    display: none;
 }
 
 .blob-1 {

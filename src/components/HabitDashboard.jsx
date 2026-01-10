@@ -192,10 +192,6 @@ function HabitDashboard() {
 
     return (
         <div className="habit-dashboard">
-            {/* Decorative Background Elements */}
-            <DecorativeBlob className="blob-1 animate-float" />
-            <DecorativeBlob className="blob-2" />
-
             <div className="habit-grid">
                 {/* LEFT COLUMN */}
                 <div className="left-column">
