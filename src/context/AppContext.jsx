@@ -103,11 +103,26 @@ const deepClone = (obj) => {
 // ============================================
 
 export function AppProvider({ children }) {
-    // Core state with safe initialization
+    // ============================================
+    // CANONICAL TIME STATE (Immutable truth - actual current time)
+    // ============================================
     const [data, setData] = useState({});
     const [currentDate, setCurrentDate] = useState(() => getTodayDate());
     const [currentMonth, setCurrentMonth] = useState(() => getCurrentMonth());
-    const [selectedDate, setSelectedDate] = useState(() => getTodayDate());
+    const [currentYear] = useState(() => new Date().getFullYear());
+
+    // ============================================
+    // VIEW STATE (What user is currently looking at)
+    // These are separate from canonical time - user can navigate to any date
+    // ============================================
+    const [viewYear, setViewYear] = useState(() => new Date().getFullYear());
+    const [viewMonth, setViewMonth] = useState(() => getCurrentMonth());
+    const [viewDate, setViewDate] = useState(() => getTodayDate());
+
+    // Legacy compatibility - selectedDate maps to viewDate
+    const selectedDate = viewDate;
+    const setSelectedDate = setViewDate;
+
     const [activeView, setActiveViewState] = useState(() => {
         try {
             const saved = localStorage.getItem('activeView');
@@ -140,6 +155,58 @@ export function AppProvider({ children }) {
     const midnightTimeoutRef = useRef(null);
     const clockIntervalRef = useRef(null);
     const isMountedRef = useRef(true);
+
+    // ============================================
+    // UNIFIED NAVIGATION FUNCTIONS
+    // These ensure all components update together
+    // ============================================
+
+    // Navigate to a specific year - updates heatmap, charts, stats
+    const navigateToYear = useCallback((year) => {
+        if (!isMountedRef.current) return;
+        const numYear = typeof year === 'string' ? parseInt(year) : year;
+        if (isNaN(numYear) || numYear < 2020 || numYear > 2100) return;
+        setViewYear(numYear);
+    }, []);
+
+    // Navigate to a specific month - updates calendar, analytics, monthly stats
+    const navigateToMonth = useCallback((monthKey) => {
+        if (!isMountedRef.current || !monthKey) return;
+        // Validate format YYYY-MM
+        if (!/^\d{4}-\d{2}$/.test(monthKey)) return;
+        setViewMonth(monthKey);
+        // Also update viewYear to match
+        const year = parseInt(monthKey.split('-')[0]);
+        if (!isNaN(year)) {
+            setViewYear(year);
+        }
+    }, []);
+
+    // Select a specific date - updates task panel, day details
+    const selectDate = useCallback((dateStr) => {
+        if (!isMountedRef.current || !dateStr) return;
+        // Validate format YYYY-MM-DD
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return;
+        setViewDate(dateStr);
+        // Also update month and year to match
+        const monthKey = dateStr.slice(0, 7);
+        const year = parseInt(dateStr.split('-')[0]);
+        setViewMonth(monthKey);
+        if (!isNaN(year)) {
+            setViewYear(year);
+        }
+    }, []);
+
+    // Reset all view state to current date (today)
+    const resetToToday = useCallback(() => {
+        if (!isMountedRef.current) return;
+        const today = getTodayDate();
+        const month = getCurrentMonth();
+        const year = new Date().getFullYear();
+        setViewDate(today);
+        setViewMonth(month);
+        setViewYear(year);
+    }, []);
 
     // ============================================
     // MOUNT TRACKING
@@ -859,18 +926,32 @@ export function AppProvider({ children }) {
     // ============================================
 
     const value = useMemo(() => ({
-        // Core State
+        // Core State (Canonical time - actual current)
         data,
         currentDate,
         currentMonth,
-        selectedDate,
+        currentYear,
+        currentTime,
+
+        // View State (What user is looking at - can be any date)
+        viewYear,
+        viewMonth,
+        viewDate,
+        selectedDate, // Legacy alias for viewDate
+
+        // View State Controls
         activeView,
         showMonthSetup,
         isLoading,
         isDataReady,
-        currentTime,
 
-        // Setters
+        // Unified Navigation Functions
+        navigateToYear,
+        navigateToMonth,
+        selectDate,
+        resetToToday,
+
+        // Legacy Setters (for backward compatibility)
         setSelectedDate,
         setCurrentMonth,
         setActiveView,
@@ -934,8 +1015,10 @@ export function AppProvider({ children }) {
         GOAL_PROGRESS_TYPES,
         formatDisplayDate
     }), [
-        data, currentDate, currentMonth, selectedDate, activeView,
-        showMonthSetup, isLoading, isDataReady, currentTime,
+        data, currentDate, currentMonth, currentYear, currentTime,
+        viewYear, viewMonth, viewDate, selectedDate, activeView,
+        showMonthSetup, isLoading, isDataReady,
+        navigateToYear, navigateToMonth, selectDate, resetToToday,
         addTask, toggleTask, editTask, deleteTask,
         goals, addGoal, updateGoal, deleteGoal, updateGoalProgress, setGoalProgress,
         activeGoals, completedGoals, expiredGoals, getGoalProgress, getDaysRemaining,

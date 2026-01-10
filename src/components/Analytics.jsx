@@ -44,9 +44,10 @@ ChartJS.register(
 );
 
 function Analytics() {
-    const { data, currentMonth, getAllMonths, CATEGORIES } = useApp();
+    const { data, currentMonth, viewMonth, navigateToMonth, getAllMonths, CATEGORIES } = useApp();
 
-    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+    // Use viewMonth from context instead of local state
+    const selectedMonth = viewMonth || currentMonth;
     const [compareMonth, setCompareMonth] = useState(null);
     const [showComparison, setShowComparison] = useState(false);
 
@@ -290,7 +291,7 @@ function Analytics() {
                     <select
                         className="input"
                         value={selectedMonth}
-                        onChange={(e) => setSelectedMonth(e.target.value)}
+                        onChange={(e) => navigateToMonth(e.target.value)}
                     >
                         {allMonths.map(m => (
                             <option key={m} value={m}>{formatMonthLabel(m)}</option>

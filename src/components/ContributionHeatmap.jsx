@@ -99,7 +99,7 @@ const HeatmapSection = React.memo(({ section, yearData, heatmapData, gridWidth, 
 });
 
 function ContributionHeatmap() {
-    const { data, heatmapData, currentDate } = useApp();
+    const { data, heatmapData, currentDate, viewYear, navigateToYear } = useApp();
 
     // Safe year extraction with fallback
     const currentYear = (() => {
@@ -127,7 +127,8 @@ function ContributionHeatmap() {
         return Array.from(years).sort((a, b) => b - a);
     }, [data, currentYear]);
 
-    const [selectedYear, setSelectedYear] = useState(currentYear);
+    // Use viewYear from context instead of local state
+    const selectedYear = viewYear || currentYear;
     const [tooltip, setTooltip] = useState({ show: false, x: 0, y: 0, content: '' });
 
     // Generate pixel-perfect year grid
@@ -220,7 +221,7 @@ function ContributionHeatmap() {
             <div className="heatmap-header">
                 <h3 className="heatmap-title">{yearStats.activeDays} contributions in {selectedYear}</h3>
                 <div className="heatmap-year-selector">
-                    <select value={selectedYear} onChange={(e) => setSelectedYear(parseInt(e.target.value))} className="year-dropdown">
+                    <select value={selectedYear} onChange={(e) => navigateToYear(parseInt(e.target.value))} className="year-dropdown">
                         {availableYears.map(year => (<option key={year} value={year}>{year}</option>))}
                     </select>
                 </div>

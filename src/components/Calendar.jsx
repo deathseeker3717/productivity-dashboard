@@ -15,16 +15,20 @@ function Calendar({ embedded = false }) {
     const {
         currentMonth,
         currentDate,
-        setCurrentMonth,
+        viewMonth,
+        navigateToMonth,
+        resetToToday,
         heatmapData,
         isToday,
         isLocked
     } = useApp();
 
     const [selectedDayModal, setSelectedDayModal] = useState(null);
-    const [viewMonth, setViewMonth] = useState(currentMonth);
 
-    const [year, month] = viewMonth.split('-').map(Number);
+    // Use viewMonth from context - no local month state
+    const displayMonth = viewMonth || currentMonth;
+
+    const [year, month] = displayMonth.split('-').map(Number);
     const daysInMonth = new Date(year, month, 0).getDate();
     const firstDayOfWeek = new Date(year, month - 1, 1).getDay();
 
@@ -49,7 +53,7 @@ function Calendar({ embedded = false }) {
 
         // Actual days
         for (let d = 1; d <= daysInMonth; d++) {
-            const dateStr = `${viewMonth}-${String(d).padStart(2, '0')}`;
+            const dateStr = `${displayMonth}-${String(d).padStart(2, '0')}`;
             const dayInfo = heatmapData[dateStr] || { progress: 0, tasks: 0, locked: false };
 
             days.push({
@@ -65,15 +69,16 @@ function Calendar({ embedded = false }) {
         }
 
         return days;
-    }, [viewMonth, heatmapData, currentDate, daysInMonth, firstDayOfWeek]);
+    }, [displayMonth, heatmapData, currentDate, daysInMonth, firstDayOfWeek]);
 
-    const navigateMonth = (delta) => {
+    // Use context navigation functions
+    const handleNavigateMonth = (delta) => {
         const d = new Date(year, month - 1 + delta, 1);
-        setViewMonth(d.toISOString().slice(0, 7));
+        navigateToMonth(d.toISOString().slice(0, 7));
     };
 
     const goToToday = () => {
-        setViewMonth(currentMonth);
+        resetToToday();
     };
 
     return (
@@ -85,8 +90,8 @@ function Calendar({ embedded = false }) {
                         <button className="btn-today" onClick={goToToday}>Today</button>
                     </div>
                     <div className="calendar-nav">
-                        <button className="nav-btn" onClick={() => navigateMonth(-1)}>{Icons.chevronLeft}</button>
-                        <button className="nav-btn" onClick={() => navigateMonth(1)}>{Icons.chevronRight}</button>
+                        <button className="nav-btn" onClick={() => handleNavigateMonth(-1)}>{Icons.chevronLeft}</button>
+                        <button className="nav-btn" onClick={() => handleNavigateMonth(1)}>{Icons.chevronRight}</button>
                     </div>
                 </div>
             )}
@@ -95,8 +100,8 @@ function Calendar({ embedded = false }) {
                 <div className="calendar-header-compact">
                     <span className="calendar-month">{monthNames[month - 1]} {year}</span>
                     <div className="calendar-nav-compact">
-                        <button onClick={() => navigateMonth(-1)}>&lt;</button>
-                        <button onClick={() => navigateMonth(1)}>&gt;</button>
+                        <button onClick={() => handleNavigateMonth(-1)}>&lt;</button>
+                        <button onClick={() => handleNavigateMonth(1)}>&gt;</button>
                     </div>
                 </div>
             )}

@@ -43,9 +43,9 @@ function Dashboard() {
 
     const inProgressCount = todayTasks.filter(t => !t.completed).length;
 
-    // Greeting logic
+    // Greeting logic - uses canonical currentTime from context
     const getGreeting = () => {
-        const hour = new Date().getHours();
+        const hour = currentTime.getHours();
         const firstName = userName.split(' ')[0];
 
         // Early Morning (5 AM - 7 AM)
