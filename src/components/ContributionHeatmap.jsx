@@ -100,16 +100,30 @@ const HeatmapSection = React.memo(({ section, yearData, heatmapData, gridWidth, 
 
 function ContributionHeatmap() {
     const { data, heatmapData, currentDate } = useApp();
-    const currentYear = new Date(currentDate).getFullYear();
+
+    // Safe year extraction with fallback
+    const currentYear = (() => {
+        try {
+            const year = new Date(currentDate).getFullYear();
+            return isNaN(year) ? new Date().getFullYear() : year;
+        } catch {
+            return new Date().getFullYear();
+        }
+    })();
 
     const availableYears = useMemo(() => {
         const years = new Set([currentYear]);
-        Object.keys(data).forEach(monthKey => {
-            const year = parseInt(monthKey.split('-')[0]);
-            if (year && year <= currentYear && year >= currentYear - 5) {
-                years.add(year);
-            }
-        });
+        try {
+            Object.keys(data || {}).forEach(monthKey => {
+                if (!monthKey || typeof monthKey !== 'string') return;
+                const year = parseInt(monthKey.split('-')[0]);
+                if (year && !isNaN(year) && year <= currentYear && year >= currentYear - 5) {
+                    years.add(year);
+                }
+            });
+        } catch {
+            // Silent fail
+        }
         return Array.from(years).sort((a, b) => b - a);
     }, [data, currentYear]);
 
@@ -157,12 +171,16 @@ function ContributionHeatmap() {
 
     const yearStats = useMemo(() => {
         let activeDays = 0, totalProgress = 0;
-        Object.entries(heatmapData).forEach(([date, info]) => {
-            if (date.startsWith(String(selectedYear)) && info.progress > 0) {
-                activeDays++;
-                totalProgress += info.progress;
-            }
-        });
+        try {
+            Object.entries(heatmapData || {}).forEach(([date, info]) => {
+                if (date && info && date.startsWith(String(selectedYear)) && info.progress > 0) {
+                    activeDays++;
+                    totalProgress += info.progress;
+                }
+            });
+        } catch {
+            // Silent fail
+        }
         return { activeDays, avgProgress: activeDays > 0 ? Math.round(totalProgress / activeDays) : 0 };
     }, [heatmapData, selectedYear]);
 

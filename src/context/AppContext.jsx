@@ -35,17 +35,39 @@ const GOAL_PROGRESS_TYPES = ['percentage', 'count', 'time'];
 // PURE UTILITY FUNCTIONS
 // ============================================
 
-const getTodayDate = () => new Date().toISOString().split('T')[0];
-const getCurrentMonth = () => getTodayDate().slice(0, 7);
-const getMonthFromDate = (dateStr) => dateStr.slice(0, 7);
+const getTodayDate = () => {
+    try {
+        return new Date().toISOString().split('T')[0];
+    } catch {
+        return new Date().toLocaleDateString('en-CA');
+    }
+};
+
+const getCurrentMonth = () => {
+    try {
+        return getTodayDate().slice(0, 7);
+    } catch {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    }
+};
+
+const getMonthFromDate = (dateStr) => {
+    if (!dateStr || typeof dateStr !== 'string') return getCurrentMonth();
+    return dateStr.slice(0, 7);
+};
 
 const formatDisplayDate = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric'
-    });
+    try {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+        });
+    } catch {
+        return dateStr || '';
+    }
 };
 
 const initMonthData = () => ({
@@ -63,35 +85,49 @@ const initDayData = () => ({
 });
 
 const calculateProgress = (tasks) => {
-    if (!tasks || tasks.length === 0) return 0;
-    const completed = tasks.filter(t => t.completed).length;
+    if (!tasks || !Array.isArray(tasks) || tasks.length === 0) return 0;
+    const completed = tasks.filter(t => t && t.completed).length;
     return Math.round((completed / tasks.length) * 100);
 };
 
-const deepClone = (obj) => JSON.parse(JSON.stringify(obj));
+const deepClone = (obj) => {
+    try {
+        return JSON.parse(JSON.stringify(obj));
+    } catch {
+        return {};
+    }
+};
 
 // ============================================
 // PROVIDER COMPONENT
 // ============================================
 
 export function AppProvider({ children }) {
-    // Core state
+    // Core state with safe initialization
     const [data, setData] = useState({});
-    const [currentDate, setCurrentDate] = useState(getTodayDate());
-    const [currentMonth, setCurrentMonth] = useState(getCurrentMonth());
-    const [selectedDate, setSelectedDate] = useState(getTodayDate());
+    const [currentDate, setCurrentDate] = useState(() => getTodayDate());
+    const [currentMonth, setCurrentMonth] = useState(() => getCurrentMonth());
+    const [selectedDate, setSelectedDate] = useState(() => getTodayDate());
     const [activeView, setActiveViewState] = useState(() => {
-        // Load persisted view from localStorage
-        const saved = localStorage.getItem('activeView');
-        return saved || 'dashboard';
+        try {
+            const saved = localStorage.getItem('activeView');
+            return saved || 'dashboard';
+        } catch {
+            return 'dashboard';
+        }
     });
     const [showMonthSetup, setShowMonthSetup] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isDataReady, setIsDataReady] = useState(false);
 
     // Wrapper to persist activeView changes
     const setActiveView = useCallback((view) => {
         setActiveViewState(view);
-        localStorage.setItem('activeView', view);
+        try {
+            localStorage.setItem('activeView', view);
+        } catch {
+            // Silent fail for localStorage
+        }
     }, []);
 
     // Goal state (independent of daily tasks)
@@ -100,18 +136,38 @@ export function AppProvider({ children }) {
     const [editingGoal, setEditingGoal] = useState(null);
 
     // Real-time clock state
-    const [currentTime, setCurrentTime] = useState(new Date());
+    const [currentTime, setCurrentTime] = useState(() => new Date());
     const midnightTimeoutRef = useRef(null);
     const clockIntervalRef = useRef(null);
+    const isMountedRef = useRef(true);
+
+    // ============================================
+    // MOUNT TRACKING
+    // ============================================
+
+    useEffect(() => {
+        isMountedRef.current = true;
+        return () => {
+            isMountedRef.current = false;
+        };
+    }, []);
 
     // ============================================
     // REAL-TIME CLOCK (Updates every second)
     // ============================================
 
     useEffect(() => {
-        const updateClock = () => setCurrentTime(new Date());
+        const updateClock = () => {
+            if (isMountedRef.current) {
+                setCurrentTime(new Date());
+            }
+        };
         clockIntervalRef.current = setInterval(updateClock, 1000);
-        return () => clearInterval(clockIntervalRef.current);
+        return () => {
+            if (clockIntervalRef.current) {
+                clearInterval(clockIntervalRef.current);
+            }
+        };
     }, []);
 
     // ============================================
@@ -119,40 +175,55 @@ export function AppProvider({ children }) {
     // ============================================
 
     useEffect(() => {
-        try {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                setData(parsed);
+        let isMounted = true;
+
+        const loadData = () => {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved && isMounted) {
+                    const parsed = JSON.parse(saved);
+                    setData(parsed || {});
+                }
+                const savedGoals = localStorage.getItem(GOALS_STORAGE_KEY);
+                if (savedGoals && isMounted) {
+                    setGoals(JSON.parse(savedGoals) || []);
+                }
+            } catch {
+                // Silent fail - use empty defaults
             }
-            // Load goals separately
-            const savedGoals = localStorage.getItem(GOALS_STORAGE_KEY);
-            if (savedGoals) {
-                setGoals(JSON.parse(savedGoals));
+
+            if (isMounted) {
+                setIsLoading(false);
+                setIsDataReady(true);
             }
-        } catch (e) {
-            console.error('Failed to load data:', e);
-        }
-        setIsLoading(false);
+        };
+
+        // Small delay to ensure DOM is ready
+        const timer = setTimeout(loadData, 10);
+
+        return () => {
+            isMounted = false;
+            clearTimeout(timer);
+        };
     }, []);
 
     useEffect(() => {
         if (!isLoading && Object.keys(data).length > 0) {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-            } catch (e) {
-                console.error('Failed to save data:', e);
+            } catch {
+                // Silent fail for localStorage
             }
         }
     }, [data, isLoading]);
 
     // Persist goals independently
     useEffect(() => {
-        if (!isLoading) {
+        if (!isLoading && isMountedRef.current) {
             try {
                 localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify(goals));
-            } catch (e) {
-                console.error('Failed to save goals:', e);
+            } catch {
+                // Silent fail for localStorage
             }
         }
     }, [goals, isLoading]);
@@ -161,10 +232,31 @@ export function AppProvider({ children }) {
     // DAY/MONTH INITIALIZATION
     // ============================================
 
+    // Ref to track if we've already initialized the current day
+    const initializedDaysRef = useRef(new Set());
+
     useEffect(() => {
-        if (isLoading) return;
+        if (isLoading || !isMountedRef.current) return;
+
+        // Create a unique key for this day initialization
+        const dayKey = `${currentMonth}-${currentDate}`;
+
+        // Skip if we've already initialized this day
+        if (initializedDaysRef.current.has(dayKey)) return;
+
+        // Mark as initialized
+        initializedDaysRef.current.add(dayKey);
 
         setData(prev => {
+            // Check if initialization is actually needed
+            const needsMonthInit = !prev[currentMonth];
+            const needsDayInit = !prev[currentMonth]?.days?.[currentDate];
+
+            // If nothing needs initialization, return previous state (no re-render)
+            if (!needsMonthInit && !needsDayInit) {
+                return prev;
+            }
+
             const newData = deepClone(prev);
 
             if (!newData[currentMonth]) {
@@ -176,39 +268,62 @@ export function AppProvider({ children }) {
 
                 const routines = newData[currentMonth].routines || [];
                 routines.forEach(routine => {
-                    newData[currentMonth].days[currentDate].tasks.push({
-                        id: Date.now() + Math.random(),
-                        name: routine.name,
-                        category: routine.category || 'other',
-                        completed: false,
-                        createdAt: new Date().toISOString(),
-                        isRoutine: true
-                    });
+                    if (routine && routine.name) {
+                        newData[currentMonth].days[currentDate].tasks.push({
+                            id: Date.now() + Math.random(),
+                            name: routine.name,
+                            category: routine.category || 'other',
+                            completed: false,
+                            createdAt: new Date().toISOString(),
+                            isRoutine: true
+                        });
+                    }
                 });
             }
 
             return newData;
         });
+    }, [currentMonth, currentDate, isLoading]);
 
-        // Auto-show Month Setup only on the 1st day of a new month
-        const dayOfMonth = new Date(currentDate).getDate();
-        const isFirstDayOfMonth = dayOfMonth === 1;
-        const monthData = data[currentMonth];
+    // Separate effect for Month Setup modal (only runs once per month)
+    const setupShownForMonthRef = useRef(new Set());
 
-        if (monthData && !monthData.setupComplete) {
-            if (isFirstDayOfMonth) {
-                // On the 1st, auto-show the modal
-                setShowMonthSetup(true);
-            }
-            // Note: Notification is added when skipMonthSetup is called
+    useEffect(() => {
+        if (isLoading || !isMountedRef.current) return;
+
+        // Skip if we've already checked this month
+        if (setupShownForMonthRef.current.has(currentMonth)) return;
+        setupShownForMonthRef.current.add(currentMonth);
+
+        try {
+            const dayOfMonth = new Date(currentDate).getDate();
+            const isFirstDayOfMonth = dayOfMonth === 1;
+
+            // Use functional check to avoid stale closure
+            setData(prev => {
+                const monthData = prev[currentMonth];
+                if (monthData && !monthData.setupComplete && isFirstDayOfMonth) {
+                    // Schedule the modal to show (don't update state here)
+                    setTimeout(() => {
+                        if (isMountedRef.current) {
+                            setShowMonthSetup(true);
+                        }
+                    }, 100);
+                }
+                return prev; // Return same reference - no re-render
+            });
+        } catch {
+            // Silent fail
         }
-    }, [currentMonth, currentDate, isLoading, data]);
+    }, [currentMonth, currentDate, isLoading]);
 
     // ============================================
     // MIDNIGHT LOCK SYSTEM
     // ============================================
 
     const lockDay = useCallback((dateStr) => {
+        if (!dateStr || !isMountedRef.current) return;
+
         setData(prev => {
             const newData = deepClone(prev);
             const month = getMonthFromDate(dateStr);
@@ -225,6 +340,8 @@ export function AppProvider({ children }) {
     }, []);
 
     const handleMidnight = useCallback(() => {
+        if (!isMountedRef.current) return;
+
         const prevDate = currentDate;
         lockDay(prevDate);
 
@@ -234,27 +351,33 @@ export function AppProvider({ children }) {
         setCurrentDate(newDate);
         setCurrentMonth(newMonth);
         setSelectedDate(newDate);
-
-        console.log(`[Midnight] Locked ${prevDate}, transitioned to ${newDate}`);
     }, [currentDate, lockDay]);
 
     useEffect(() => {
         const scheduleMidnight = () => {
-            const now = new Date();
-            const midnight = new Date();
-            midnight.setHours(24, 0, 0, 0);
-            const msUntilMidnight = midnight.getTime() - now.getTime();
+            try {
+                const now = new Date();
+                const midnight = new Date();
+                midnight.setHours(24, 0, 0, 0);
+                const msUntilMidnight = midnight.getTime() - now.getTime();
 
-            console.log(`[Scheduler] Midnight in ${Math.round(msUntilMidnight / 60000)} minutes`);
-
-            midnightTimeoutRef.current = setTimeout(() => {
-                handleMidnight();
-                scheduleMidnight();
-            }, msUntilMidnight);
+                midnightTimeoutRef.current = setTimeout(() => {
+                    if (isMountedRef.current) {
+                        handleMidnight();
+                        scheduleMidnight();
+                    }
+                }, msUntilMidnight);
+            } catch {
+                // Silent fail
+            }
         };
 
         scheduleMidnight();
-        return () => clearTimeout(midnightTimeoutRef.current);
+        return () => {
+            if (midnightTimeoutRef.current) {
+                clearTimeout(midnightTimeoutRef.current);
+            }
+        };
     }, [handleMidnight]);
 
     // ============================================
@@ -262,6 +385,8 @@ export function AppProvider({ children }) {
     // ============================================
 
     const addTask = useCallback((taskName, category = 'other', targetDate = null) => {
+        if (!taskName || !isMountedRef.current) return;
+
         const date = targetDate || selectedDate;
         const month = getMonthFromDate(date);
 
@@ -289,6 +414,8 @@ export function AppProvider({ children }) {
     }, [selectedDate]);
 
     const toggleTask = useCallback((taskId, targetDate = null) => {
+        if (!taskId || !isMountedRef.current) return;
+
         const date = targetDate || selectedDate;
         const month = getMonthFromDate(date);
 
@@ -310,6 +437,8 @@ export function AppProvider({ children }) {
     }, [selectedDate]);
 
     const editTask = useCallback((taskId, updates, targetDate = null) => {
+        if (!taskId || !updates || !isMountedRef.current) return;
+
         const date = targetDate || selectedDate;
         const month = getMonthFromDate(date);
 
@@ -327,6 +456,8 @@ export function AppProvider({ children }) {
     }, [selectedDate]);
 
     const deleteTask = useCallback((taskId, targetDate = null) => {
+        if (!taskId || !isMountedRef.current) return;
+
         const date = targetDate || selectedDate;
         const month = getMonthFromDate(date);
 
@@ -348,25 +479,30 @@ export function AppProvider({ children }) {
     // ============================================
 
     const setMonthlyGoals = useCallback((goals) => {
+        if (!isMountedRef.current) return;
+
         setData(prev => {
             const newData = deepClone(prev);
             if (!newData[currentMonth]) newData[currentMonth] = initMonthData();
-            newData[currentMonth].goals = goals;
+            newData[currentMonth].goals = goals || [];
             return newData;
         });
     }, [currentMonth]);
 
     const setRoutineTasks = useCallback((routines) => {
+        if (!isMountedRef.current) return;
+
         setData(prev => {
             const newData = deepClone(prev);
             if (!newData[currentMonth]) newData[currentMonth] = initMonthData();
 
-            newData[currentMonth].routines = routines;
+            newData[currentMonth].routines = routines || [];
             newData[currentMonth].setupComplete = true;
 
             const today = newData[currentMonth].days[currentDate];
-            if (today && !today.locked) {
+            if (today && !today.locked && Array.isArray(routines)) {
                 routines.forEach(routine => {
+                    if (!routine || !routine.name) return;
                     const exists = today.tasks.some(t => t.isRoutine && t.name === routine.name);
                     if (!exists) {
                         today.tasks.push({
@@ -388,6 +524,8 @@ export function AppProvider({ children }) {
     }, [currentMonth, currentDate]);
 
     const skipMonthSetup = useCallback(() => {
+        if (!isMountedRef.current) return;
+
         setData(prev => {
             const newData = deepClone(prev);
             if (!newData[currentMonth]) newData[currentMonth] = initMonthData();
@@ -402,9 +540,11 @@ export function AppProvider({ children }) {
     // ============================================
 
     const addGoal = useCallback((goalData) => {
+        if (!goalData || !isMountedRef.current) return;
+
         const newGoal = {
             id: Date.now(),
-            title: goalData.title,
+            title: goalData.title || '',
             description: goalData.description || '',
             startDate: goalData.startDate || getTodayDate(),
             endDate: goalData.endDate,
@@ -420,6 +560,8 @@ export function AppProvider({ children }) {
     }, []);
 
     const updateGoal = useCallback((goalId, updates) => {
+        if (!goalId || !updates || !isMountedRef.current) return;
+
         setGoals(prev => prev.map(g =>
             g.id === goalId ? { ...g, ...updates } : g
         ));
@@ -427,10 +569,14 @@ export function AppProvider({ children }) {
     }, []);
 
     const deleteGoal = useCallback((goalId) => {
+        if (!goalId || !isMountedRef.current) return;
+
         setGoals(prev => prev.filter(g => g.id !== goalId));
     }, []);
 
     const updateGoalProgress = useCallback((goalId, amount) => {
+        if (!goalId || !isMountedRef.current) return;
+
         setGoals(prev => prev.map(g => {
             if (g.id !== goalId) return g;
             const newProgress = Math.min(g.progressTarget, Math.max(0, g.progressCurrent + amount));
@@ -440,6 +586,8 @@ export function AppProvider({ children }) {
     }, []);
 
     const setGoalProgress = useCallback((goalId, value) => {
+        if (!goalId || !isMountedRef.current) return;
+
         setGoals(prev => prev.map(g => {
             if (g.id !== goalId) return g;
             const newProgress = Math.min(g.progressTarget, Math.max(0, value));
@@ -450,10 +598,11 @@ export function AppProvider({ children }) {
 
     // Auto-expire goals past their end date
     useEffect(() => {
-        if (isLoading) return;
+        if (isLoading || !isMountedRef.current) return;
+
         const today = getTodayDate();
         setGoals(prev => prev.map(g => {
-            if (g.state === 'active' && g.endDate < today) {
+            if (g.state === 'active' && g.endDate && g.endDate < today) {
                 return { ...g, state: 'expired' };
             }
             return g;
@@ -462,29 +611,35 @@ export function AppProvider({ children }) {
 
     // Derived goal values
     const activeGoals = useMemo(() => {
-        return goals.filter(g => g.state === 'active');
+        return Array.isArray(goals) ? goals.filter(g => g && g.state === 'active') : [];
     }, [goals]);
 
     const completedGoals = useMemo(() => {
-        return goals.filter(g => g.state === 'completed');
+        return Array.isArray(goals) ? goals.filter(g => g && g.state === 'completed') : [];
     }, [goals]);
 
     const expiredGoals = useMemo(() => {
-        return goals.filter(g => g.state === 'expired');
+        return Array.isArray(goals) ? goals.filter(g => g && g.state === 'expired') : [];
     }, [goals]);
 
     const getGoalProgress = useCallback((goal) => {
+        if (!goal) return 0;
         if (goal.progressType === 'percentage') {
-            return Math.round((goal.progressCurrent / goal.progressTarget) * 100);
+            return Math.round((goal.progressCurrent / (goal.progressTarget || 1)) * 100);
         }
-        return goal.progressCurrent;
+        return goal.progressCurrent || 0;
     }, []);
 
     const getDaysRemaining = useCallback((goal) => {
-        const today = new Date(getTodayDate());
-        const end = new Date(goal.endDate);
-        const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
-        return Math.max(0, diff);
+        if (!goal || !goal.endDate) return 0;
+        try {
+            const today = new Date(getTodayDate());
+            const end = new Date(goal.endDate);
+            const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+            return Math.max(0, diff);
+        } catch {
+            return 0;
+        }
     }, []);
 
     // ============================================
@@ -493,19 +648,22 @@ export function AppProvider({ children }) {
 
     const calculateStreak = useMemo(() => {
         let streak = 0;
-        let checkDate = new Date();
-        checkDate.setDate(checkDate.getDate() - 1);
-
-        while (streak < 365) {
-            const dateStr = checkDate.toISOString().split('T')[0];
-            const month = getMonthFromDate(dateStr);
-            const dayData = data[month]?.days[dateStr];
-
-            if (!dayData || dayData.progress < 50) break;
-            streak++;
+        try {
+            let checkDate = new Date();
             checkDate.setDate(checkDate.getDate() - 1);
-        }
 
+            while (streak < 365) {
+                const dateStr = checkDate.toISOString().split('T')[0];
+                const month = getMonthFromDate(dateStr);
+                const dayData = data[month]?.days[dateStr];
+
+                if (!dayData || dayData.progress < 50) break;
+                streak++;
+                checkDate.setDate(checkDate.getDate() - 1);
+            }
+        } catch {
+            // Silent fail
+        }
         return streak;
     }, [data]);
 
@@ -519,7 +677,7 @@ export function AppProvider({ children }) {
         if (!monthData?.days) return 0;
 
         const days = Object.values(monthData.days);
-        const daysWithTasks = days.filter(d => d.tasks.length > 0);
+        const daysWithTasks = days.filter(d => d && Array.isArray(d.tasks) && d.tasks.length > 0);
         if (daysWithTasks.length === 0) return 0;
 
         const total = daysWithTasks.reduce((sum, d) => sum + (d.progress || 0), 0);
@@ -527,66 +685,82 @@ export function AppProvider({ children }) {
     }, [data, currentMonth]);
 
     const todayTasks = useMemo(() => {
-        return data[currentMonth]?.days[currentDate]?.tasks || [];
+        const tasks = data[currentMonth]?.days[currentDate]?.tasks;
+        return Array.isArray(tasks) ? tasks : [];
     }, [data, currentMonth, currentDate]);
 
     const completedToday = useMemo(() => {
-        return todayTasks.filter(t => t.completed).length;
+        return todayTasks.filter(t => t && t.completed).length;
     }, [todayTasks]);
 
     const categoryBreakdown = useMemo(() => {
         const breakdown = {};
         CATEGORIES.forEach(c => breakdown[c] = { total: 0, completed: 0 });
 
-        Object.values(data).forEach(monthData => {
-            if (!monthData.days) return;
-            Object.values(monthData.days).forEach(dayData => {
-                dayData.tasks.forEach(task => {
-                    const cat = task.category || 'other';
-                    if (breakdown[cat]) {
-                        breakdown[cat].total++;
-                        if (task.completed) breakdown[cat].completed++;
-                    }
+        try {
+            Object.values(data).forEach(monthData => {
+                if (!monthData?.days) return;
+                Object.values(monthData.days).forEach(dayData => {
+                    if (!dayData?.tasks || !Array.isArray(dayData.tasks)) return;
+                    dayData.tasks.forEach(task => {
+                        if (!task) return;
+                        const cat = task.category || 'other';
+                        if (breakdown[cat]) {
+                            breakdown[cat].total++;
+                            if (task.completed) breakdown[cat].completed++;
+                        }
+                    });
                 });
             });
-        });
+        } catch {
+            // Silent fail
+        }
 
         return breakdown;
     }, [data]);
 
     const weeklyProgress = useMemo(() => {
         const result = [];
-        for (let i = 6; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            const dateStr = d.toISOString().split('T')[0];
-            const month = getMonthFromDate(dateStr);
-            const dayData = data[month]?.days[dateStr];
+        try {
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const dateStr = d.toISOString().split('T')[0];
+                const month = getMonthFromDate(dateStr);
+                const dayData = data[month]?.days[dateStr];
 
-            result.push({
-                date: dateStr,
-                day: d.toLocaleDateString('en-US', { weekday: 'short' }),
-                progress: dayData?.progress || 0,
-                tasks: dayData?.tasks?.length || 0,
-                completed: dayData?.tasks?.filter(t => t.completed).length || 0
-            });
+                result.push({
+                    date: dateStr,
+                    day: d.toLocaleDateString('en-US', { weekday: 'short' }),
+                    progress: dayData?.progress || 0,
+                    tasks: dayData?.tasks?.length || 0,
+                    completed: dayData?.tasks?.filter(t => t && t.completed).length || 0
+                });
+            }
+        } catch {
+            // Return empty array on error
         }
         return result;
     }, [data]);
 
     const heatmapData = useMemo(() => {
         const result = {};
-        Object.entries(data).forEach(([month, monthData]) => {
-            if (!monthData.days) return;
-            Object.entries(monthData.days).forEach(([date, dayData]) => {
-                result[date] = {
-                    progress: dayData.progress || 0,
-                    tasks: dayData.tasks?.length || 0,
-                    completed: dayData.tasks?.filter(t => t.completed).length || 0,
-                    locked: dayData.locked || false
-                };
+        try {
+            Object.entries(data).forEach(([month, monthData]) => {
+                if (!monthData?.days) return;
+                Object.entries(monthData.days).forEach(([date, dayData]) => {
+                    if (!dayData) return;
+                    result[date] = {
+                        progress: dayData.progress || 0,
+                        tasks: dayData.tasks?.length || 0,
+                        completed: dayData.tasks?.filter(t => t && t.completed).length || 0,
+                        locked: dayData.locked || false
+                    };
+                });
             });
-        });
+        } catch {
+            // Silent fail
+        }
         return result;
     }, [data]);
 
@@ -608,6 +782,7 @@ export function AppProvider({ children }) {
     }, [data, currentMonth]);
 
     const getDayData = useCallback((dateStr) => {
+        if (!dateStr) return initDayData();
         const month = getMonthFromDate(dateStr);
         return data[month]?.days[dateStr] || initDayData();
     }, [data]);
@@ -617,15 +792,20 @@ export function AppProvider({ children }) {
     }, [data]);
 
     const getAllMonths = useCallback(() => {
-        return Object.keys(data)
-            .filter(k => k.match(/^\d{4}-\d{2}$/))
-            .sort()
-            .reverse();
+        try {
+            return Object.keys(data)
+                .filter(k => k && k.match(/^\d{4}-\d{2}$/))
+                .sort()
+                .reverse();
+        } catch {
+            return [];
+        }
     }, [data]);
 
     const isToday = useCallback((dateStr) => dateStr === currentDate, [currentDate]);
 
     const isLocked = useCallback((dateStr) => {
+        if (!dateStr) return true;
         if (dateStr === currentDate) return false;
         const month = getMonthFromDate(dateStr);
         return data[month]?.days[dateStr]?.locked || dateStr < currentDate;
@@ -636,32 +816,42 @@ export function AppProvider({ children }) {
     // ============================================
 
     const exportJSON = useCallback(() => {
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `productivity-export-${getTodayDate()}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
+        try {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `productivity-export-${getTodayDate()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch {
+            // Silent fail
+        }
     }, [data]);
 
     const exportCSV = useCallback(() => {
-        let csv = 'Date,Task,Category,Completed,Progress\n';
-        Object.entries(data).forEach(([month, monthData]) => {
-            if (!monthData.days) return;
-            Object.entries(monthData.days).forEach(([date, dayData]) => {
-                dayData.tasks.forEach(task => {
-                    csv += `${date},"${task.name}",${task.category},${task.completed},${dayData.progress}%\n`;
+        try {
+            let csv = 'Date,Task,Category,Completed,Progress\n';
+            Object.entries(data).forEach(([month, monthData]) => {
+                if (!monthData?.days) return;
+                Object.entries(monthData.days).forEach(([date, dayData]) => {
+                    if (!dayData?.tasks) return;
+                    dayData.tasks.forEach(task => {
+                        if (!task) return;
+                        csv += `${date},"${task.name || ''}",${task.category || 'other'},${task.completed},${dayData.progress}%\n`;
+                    });
                 });
             });
-        });
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `productivity-export-${getTodayDate()}.csv`;
-        a.click();
-        URL.revokeObjectURL(url);
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `productivity-export-${getTodayDate()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch {
+            // Silent fail
+        }
     }, [data]);
 
     // ============================================
@@ -677,6 +867,7 @@ export function AppProvider({ children }) {
         activeView,
         showMonthSetup,
         isLoading,
+        isDataReady,
         currentTime,
 
         // Setters
@@ -744,7 +935,7 @@ export function AppProvider({ children }) {
         formatDisplayDate
     }), [
         data, currentDate, currentMonth, selectedDate, activeView,
-        showMonthSetup, isLoading, currentTime,
+        showMonthSetup, isLoading, isDataReady, currentTime,
         addTask, toggleTask, editTask, deleteTask,
         goals, addGoal, updateGoal, deleteGoal, updateGoalProgress, setGoalProgress,
         activeGoals, completedGoals, expiredGoals, getGoalProgress, getDaysRemaining,
@@ -754,7 +945,7 @@ export function AppProvider({ children }) {
         completedToday, categoryBreakdown, weeklyProgress, heatmapData,
         getSelectedDayData, getTodayData, getCurrentMonthData,
         getDayData, getMonthData, getAllMonths, isToday, isLocked, lockDay,
-        exportJSON, exportCSV
+        exportJSON, exportCSV, setActiveView
     ]);
 
     return (

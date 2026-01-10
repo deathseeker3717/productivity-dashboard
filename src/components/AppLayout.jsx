@@ -5,24 +5,29 @@
  * - Sidebar navigation
  * - Top bar with search, notifications, profile
  * - View switching
+ * - Error boundaries for crash protection
  */
 
-import React from 'react';
+import React, { Suspense, lazy, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { useUser } from '../context/UserContext';
 import { usePreferences } from '../context/PreferencesContext';
+import ErrorBoundary from './ErrorBoundary';
 import Sidebar from './Sidebar';
 import Dashboard from './Dashboard';
-import Calendar from './Calendar';
-import Analytics from './Analytics';
-import HabitDashboard from './HabitDashboard';
-import Settings from './Settings';
-import MonthSetup from './MonthSetup';
 import NotificationPanel from './NotificationPanel';
 import UserProfile from './UserProfile';
-import GoalForm from './GoalForm';
-import Goals from './Goals';
+import { SkeletonDashboard, SkeletonChart, SkeletonHeatmap, SkeletonTaskList } from './SkeletonUI';
 import '../App.css';
+
+// Lazy load heavy components
+const Calendar = lazy(() => import('./Calendar'));
+const Analytics = lazy(() => import('./Analytics'));
+const HabitDashboard = lazy(() => import('./HabitDashboard'));
+const Settings = lazy(() => import('./Settings'));
+const Goals = lazy(() => import('./Goals'));
+const MonthSetup = lazy(() => import('./MonthSetup'));
+const GoalForm = lazy(() => import('./GoalForm'));
 
 // Search icon
 const SearchIcon = () => (
@@ -40,12 +45,32 @@ const BellIcon = () => (
     </svg>
 );
 
+// View loading fallback
+const ViewLoadingFallback = () => (
+    <div className="view-loading-fallback">
+        <SkeletonDashboard />
+    </div>
+);
+
+// Minimal view fallback for errors
+const ViewErrorFallback = ({ retry }) => (
+    <div className="view-error-fallback">
+        <p>Unable to load this view</p>
+        {retry && (
+            <button onClick={retry} className="btn btn-secondary">
+                Retry
+            </button>
+        )}
+    </div>
+);
+
 function AppLayout() {
     const { user } = useUser();
     const {
         activeView,
         showMonthSetup,
-        isLoading
+        isLoading,
+        showGoalModal
     } = useApp();
 
     const {
@@ -56,9 +81,23 @@ function AppLayout() {
         setShowProfilePanel
     } = usePreferences();
 
-    // Derive user info from Supabase user
+    const isMountedRef = useRef(true);
+
+    useEffect(() => {
+        isMountedRef.current = true;
+        return () => {
+            isMountedRef.current = false;
+        };
+    }, []);
+
+    // Derive user info from Supabase user with null checks
     const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
-    const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    const userInitials = userName
+        .split(' ')
+        .map(n => n?.[0] || '')
+        .join('')
+        .toUpperCase()
+        .slice(0, 2) || 'U';
 
     // Typewriter effect for search
     const [placeholderText, setPlaceholderText] = React.useState('');
@@ -68,17 +107,23 @@ function AppLayout() {
     const [cursorVisible, setCursorVisible] = React.useState(true);
 
     React.useEffect(() => {
+        if (!isMountedRef.current) return;
+
         const phrases = ["Search anything...", "Search tasks...", "Search goals...", "Find clarity..."];
         const i = loopNum % phrases.length;
         const fullText = phrases[i];
 
         if (!isDeleting && placeholderText === fullText) {
             const cursorInterval = setInterval(() => {
-                setCursorVisible(v => !v);
+                if (isMountedRef.current) {
+                    setCursorVisible(v => !v);
+                }
             }, 500);
 
             const deleteTimeout = setTimeout(() => {
-                setIsDeleting(true);
+                if (isMountedRef.current) {
+                    setIsDeleting(true);
+                }
             }, 2000);
 
             return () => {
@@ -87,9 +132,13 @@ function AppLayout() {
             };
         }
 
-        setCursorVisible(true);
+        if (isMountedRef.current) {
+            setCursorVisible(true);
+        }
 
         const typeTimeout = setTimeout(() => {
+            if (!isMountedRef.current) return;
+
             setPlaceholderText(current =>
                 isDeleting
                     ? fullText.substring(0, current.length - 1)
@@ -107,40 +156,52 @@ function AppLayout() {
         return () => clearTimeout(typeTimeout);
     }, [placeholderText, isDeleting, loopNum, typingSpeed]);
 
-    // Render active view
+    // Render active view with error boundary
     const renderView = () => {
-        switch (activeView) {
-            case 'calendar':
-                return <Calendar />;
-            case 'analytics':
-                return <Analytics />;
-            case 'habits':
-                return <HabitDashboard />;
-            case 'settings':
-                return <Settings />;
-            case 'goals':
-                return <Goals />;
-            case 'dashboard':
-            default:
-                return <Dashboard />;
-        }
+        const viewContent = (() => {
+            switch (activeView) {
+                case 'calendar':
+                    return <Calendar />;
+                case 'analytics':
+                    return <Analytics />;
+                case 'habits':
+                    return <HabitDashboard />;
+                case 'settings':
+                    return <Settings />;
+                case 'goals':
+                    return <Goals />;
+                case 'dashboard':
+                default:
+                    return <Dashboard />;
+            }
+        })();
+
+        return (
+            <ErrorBoundary
+                fallback={ViewErrorFallback}
+                message="Unable to load this view"
+            >
+                <Suspense fallback={<ViewLoadingFallback />}>
+                    {viewContent}
+                </Suspense>
+            </ErrorBoundary>
+        );
     };
 
-    // Loading state
+    // Loading state - should not occur often due to boot sequence
     if (isLoading) {
         return (
             <div className="app-layout">
-                <div className="loading-screen">
-                    <div className="loading-spinner"></div>
-                    <p>Loading your data...</p>
-                </div>
+                <SkeletonDashboard />
             </div>
         );
     }
 
     return (
         <div className="app-layout">
-            <Sidebar />
+            <ErrorBoundary fallback={<div className="sidebar-fallback" />}>
+                <Sidebar />
+            </ErrorBoundary>
 
             <main className="main-content">
                 {/* Search Bar */}
@@ -173,22 +234,38 @@ function AppLayout() {
                 </div>
 
                 {/* Notification Panel */}
-                <NotificationPanel />
+                <ErrorBoundary fallback={null}>
+                    <NotificationPanel />
+                </ErrorBoundary>
 
                 {/* User Profile Panel */}
-                <UserProfile />
+                <ErrorBoundary fallback={null}>
+                    <UserProfile />
+                </ErrorBoundary>
 
                 {/* Active View */}
-                <div className="view-container animate-fadeIn">
+                <div className="view-container content-fade-in">
                     {renderView()}
                 </div>
             </main>
 
             {/* Month Setup Modal */}
-            {showMonthSetup && <MonthSetup />}
+            {showMonthSetup && (
+                <ErrorBoundary fallback={null}>
+                    <Suspense fallback={null}>
+                        <MonthSetup />
+                    </Suspense>
+                </ErrorBoundary>
+            )}
 
             {/* Goal Form Modal */}
-            <GoalForm />
+            {showGoalModal && (
+                <ErrorBoundary fallback={null}>
+                    <Suspense fallback={null}>
+                        <GoalForm />
+                    </Suspense>
+                </ErrorBoundary>
+            )}
         </div>
     );
 }

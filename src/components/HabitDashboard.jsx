@@ -108,41 +108,67 @@ function HabitDashboard() {
 
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const dayName = dayNames[currentTime.getDay()];
+    const dayName = dayNames[currentTime?.getDay?.() ?? 0] || 'Today';
 
-    const [year, month] = currentMonth.split('-').map(Number);
+    // Safe month parsing with fallback
+    const [year, month] = (() => {
+        try {
+            if (!currentMonth || typeof currentMonth !== 'string') {
+                const now = new Date();
+                return [now.getFullYear(), now.getMonth() + 1];
+            }
+            const parts = currentMonth.split('-').map(Number);
+            if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) {
+                const now = new Date();
+                return [now.getFullYear(), now.getMonth() + 1];
+            }
+            return parts;
+        } catch {
+            const now = new Date();
+            return [now.getFullYear(), now.getMonth() + 1];
+        }
+    })();
+
     const daysInMonth = new Date(year, month, 0).getDate();
 
     const calendarDays = useMemo(() => {
         const days = [];
-        for (let i = 1; i <= daysInMonth; i++) {
-            const dateStr = `${currentMonth}-${String(i).padStart(2, '0')}`;
-            const dayInfo = heatmapData[dateStr] || { progress: 0, tasks: 0 };
-            days.push({
-                day: i,
-                date: dateStr,
-                hasData: dayInfo.tasks > 0,
-                isToday: dateStr === currentDate,
-                progress: dayInfo.progress
-            });
+        try {
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dateStr = `${currentMonth}-${String(i).padStart(2, '0')}`;
+                const dayInfo = (heatmapData || {})[dateStr] || { progress: 0, tasks: 0 };
+                days.push({
+                    day: i,
+                    date: dateStr,
+                    hasData: dayInfo.tasks > 0,
+                    isToday: dateStr === currentDate,
+                    progress: dayInfo.progress
+                });
+            }
+        } catch {
+            // Return empty array on error
         }
         return days;
     }, [currentMonth, heatmapData, currentDate, daysInMonth]);
 
     const monthImprovement = useMemo(() => {
-        const lastMonthKey = (() => {
-            const d = new Date(year, month - 2, 1);
-            return d.toISOString().slice(0, 7);
-        })();
+        try {
+            const lastMonthKey = (() => {
+                const d = new Date(year, month - 2, 1);
+                return d.toISOString().slice(0, 7);
+            })();
 
-        const lastMonthData = data[lastMonthKey];
-        if (!lastMonthData?.days) return null;
+            const lastMonthData = (data || {})[lastMonthKey];
+            if (!lastMonthData?.days) return null;
 
-        const lastDays = Object.values(lastMonthData.days).filter(d => d.tasks.length > 0);
-        if (lastDays.length === 0) return null;
+            const lastDays = Object.values(lastMonthData.days).filter(d => d?.tasks?.length > 0);
+            if (lastDays.length === 0) return null;
 
-        const lastAvg = Math.round(lastDays.reduce((s, d) => s + d.progress, 0) / lastDays.length);
-        return monthProgress - lastAvg;
+            const lastAvg = Math.round(lastDays.reduce((s, d) => s + (d?.progress || 0), 0) / lastDays.length);
+            return monthProgress - lastAvg;
+        } catch {
+            return null;
+        }
     }, [data, year, month, monthProgress]);
 
     const habitCategories = useMemo(() => {

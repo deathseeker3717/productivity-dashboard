@@ -16,7 +16,8 @@ import React, {
     useState,
     useEffect,
     useCallback,
-    useMemo
+    useMemo,
+    useRef
 } from 'react';
 
 const PreferencesContext = createContext();
@@ -36,14 +37,17 @@ const defaultSettings = {
 };
 
 export function PreferencesProvider({ children }) {
+    const [isInitialized, setIsInitialized] = useState(false);
+    const isMountedRef = useRef(true);
+
     const [settings, setSettings] = useState(() => {
         try {
             const saved = localStorage.getItem(PREFERENCES_KEY);
             if (saved) {
                 return { ...defaultSettings, ...JSON.parse(saved) };
             }
-        } catch (e) {
-            console.error('Failed to load preferences:', e);
+        } catch {
+            // Silent fail
         }
         return defaultSettings;
     });
@@ -52,10 +56,10 @@ export function PreferencesProvider({ children }) {
         try {
             const saved = localStorage.getItem(NOTIFICATIONS_KEY);
             if (saved) {
-                return JSON.parse(saved);
+                return JSON.parse(saved) || [];
             }
-        } catch (e) {
-            console.error('Failed to load notifications:', e);
+        } catch {
+            // Silent fail
         }
         return [];
     });
@@ -63,44 +67,63 @@ export function PreferencesProvider({ children }) {
     const [showNotificationPanel, setShowNotificationPanel] = useState(false);
     const [showProfilePanel, setShowProfilePanel] = useState(false);
 
+    // Track mount state
+    useEffect(() => {
+        isMountedRef.current = true;
+        setIsInitialized(true);
+        return () => {
+            isMountedRef.current = false;
+        };
+    }, []);
+
     // Save to localStorage
     useEffect(() => {
+        if (!isInitialized || !isMountedRef.current) return;
         try {
             localStorage.setItem(PREFERENCES_KEY, JSON.stringify(settings));
-        } catch (e) {
-            console.error('Failed to save preferences:', e);
+        } catch {
+            // Silent fail
         }
-    }, [settings]);
+    }, [settings, isInitialized]);
 
     useEffect(() => {
+        if (!isInitialized || !isMountedRef.current) return;
         try {
             localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(notifications));
-        } catch (e) {
-            console.error('Failed to save notifications:', e);
+        } catch {
+            // Silent fail
         }
-    }, [notifications]);
+    }, [notifications, isInitialized]);
 
-    // Apply theme
+    // Apply theme - only after initialization
     useEffect(() => {
-        const root = document.documentElement;
-        if (settings.theme === 'dark') {
-            root.classList.add('dark-theme');
-            root.classList.remove('light-theme');
-        } else {
-            root.classList.add('light-theme');
-            root.classList.remove('dark-theme');
+        if (!isInitialized) return;
+
+        try {
+            const root = document.documentElement;
+            if (settings.theme === 'dark') {
+                root.classList.add('dark-theme');
+                root.classList.remove('light-theme');
+            } else {
+                root.classList.add('light-theme');
+                root.classList.remove('dark-theme');
+            }
+            root.style.setProperty('--accent', settings.accentColor);
+            root.style.setProperty('--accent-light', `${settings.accentColor}15`);
+            root.style.setProperty('--accent-hover', settings.accentColor);
+        } catch {
+            // Silent fail
         }
-        root.style.setProperty('--accent', settings.accentColor);
-        root.style.setProperty('--accent-light', `${settings.accentColor}15`);
-        root.style.setProperty('--accent-hover', settings.accentColor);
-    }, [settings.theme, settings.accentColor]);
+    }, [settings.theme, settings.accentColor, isInitialized]);
 
     // Settings functions
     const updateSettings = useCallback((updates) => {
+        if (!isMountedRef.current) return;
         setSettings(prev => ({ ...prev, ...updates }));
     }, []);
 
     const updateNotificationSettings = useCallback((updates) => {
+        if (!isMountedRef.current) return;
         setSettings(prev => ({
             ...prev,
             notifications: { ...prev.notifications, ...updates }
@@ -108,6 +131,7 @@ export function PreferencesProvider({ children }) {
     }, []);
 
     const toggleTheme = useCallback(() => {
+        if (!isMountedRef.current) return;
         setSettings(prev => ({
             ...prev,
             theme: prev.theme === 'light' ? 'dark' : 'light'
@@ -116,6 +140,7 @@ export function PreferencesProvider({ children }) {
 
     // Notification functions
     const addNotification = useCallback((notification) => {
+        if (!isMountedRef.current || !notification) return;
         const newNotification = {
             id: Date.now(),
             timestamp: new Date().toISOString(),
@@ -126,40 +151,53 @@ export function PreferencesProvider({ children }) {
     }, []);
 
     const markAsRead = useCallback((id) => {
+        if (!isMountedRef.current || !id) return;
         setNotifications(prev =>
             prev.map(n => n.id === id ? { ...n, read: true } : n)
         );
     }, []);
 
     const markAllAsRead = useCallback(() => {
+        if (!isMountedRef.current) return;
         setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     }, []);
 
     const clearNotifications = useCallback(() => {
+        if (!isMountedRef.current) return;
         setNotifications([]);
     }, []);
 
     const deleteNotification = useCallback((id) => {
+        if (!isMountedRef.current || !id) return;
         setNotifications(prev => prev.filter(n => n.id !== id));
     }, []);
 
     const unreadCount = useMemo(() => {
-        return notifications.filter(n => !n.read).length;
+        return Array.isArray(notifications)
+            ? notifications.filter(n => n && !n.read).length
+            : 0;
     }, [notifications]);
 
     const resetSettings = useCallback(() => {
+        if (!isMountedRef.current) return;
         setSettings(defaultSettings);
     }, []);
 
     const resetAll = useCallback(() => {
+        if (!isMountedRef.current) return;
         setSettings(defaultSettings);
         setNotifications([]);
-        localStorage.removeItem(PREFERENCES_KEY);
-        localStorage.removeItem(NOTIFICATIONS_KEY);
+        try {
+            localStorage.removeItem(PREFERENCES_KEY);
+            localStorage.removeItem(NOTIFICATIONS_KEY);
+        } catch {
+            // Silent fail
+        }
     }, []);
 
     const value = useMemo(() => ({
         settings,
+        isInitialized,
         updateSettings,
         updateNotificationSettings,
         toggleTheme,
@@ -179,7 +217,7 @@ export function PreferencesProvider({ children }) {
         showProfilePanel,
         setShowProfilePanel
     }), [
-        settings, updateSettings, updateNotificationSettings, toggleTheme, resetSettings, resetAll,
+        settings, isInitialized, updateSettings, updateNotificationSettings, toggleTheme, resetSettings, resetAll,
         notifications, addNotification, markAsRead, markAllAsRead, clearNotifications, deleteNotification, unreadCount,
         showNotificationPanel, showProfilePanel
     ]);

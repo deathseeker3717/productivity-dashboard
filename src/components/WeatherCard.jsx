@@ -3,9 +3,14 @@
  * 
  * Live weather data with context-aware visuals.
  * Updates automatically, changes appearance based on conditions.
+ * 
+ * Safety features:
+ * - AbortController for fetch cancellation
+ * - Mount state tracking
+ * - Graceful fallback on errors
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './WeatherCard.css';
 
 // Weather condition to theme mapping
@@ -143,23 +148,32 @@ const WeatherIcons = {
 
 // Enhanced Background Scene with dynamic weather effects
 const BackgroundScene = ({ condition, isNight }) => {
-    const theme = getWeatherTheme(condition, isNight);
     const [shootingStarActive, setShootingStarActive] = useState(false);
+    const isMountedRef = useRef(true);
+
+    useEffect(() => {
+        isMountedRef.current = true;
+        return () => {
+            isMountedRef.current = false;
+        };
+    }, []);
 
     // Trigger shooting star every 5 minutes
     useEffect(() => {
         if (!isNight) return;
 
         const triggerShootingStar = () => {
-            setShootingStarActive(true);
-            // Remove active class after animation completes
-            setTimeout(() => setShootingStarActive(false), 700);
+            if (isMountedRef.current) {
+                setShootingStarActive(true);
+                setTimeout(() => {
+                    if (isMountedRef.current) {
+                        setShootingStarActive(false);
+                    }
+                }, 700);
+            }
         };
 
-        // First shooting star after 10 seconds
         const initialTimeout = setTimeout(triggerShootingStar, 10000);
-
-        // Then every 5 minutes (300000ms)
         const interval = setInterval(triggerShootingStar, 300000);
 
         return () => {
@@ -184,7 +198,6 @@ const BackgroundScene = ({ condition, isNight }) => {
             {/* Stars for night - fixed positions */}
             {isNight && (
                 <div className="stars-container">
-                    {/* Fixed position stars that only twinkle */}
                     <div className="star" style={{ left: '5%', top: '10%', animationDelay: '0s' }} />
                     <div className="star" style={{ left: '15%', top: '25%', animationDelay: '0.5s' }} />
                     <div className="star" style={{ left: '25%', top: '8%', animationDelay: '1s' }} />
@@ -199,7 +212,6 @@ const BackgroundScene = ({ condition, isNight }) => {
                     <div className="star large" style={{ left: '60%', top: '5%', animationDelay: '2.5s' }} />
                     <div className="star large" style={{ left: '80%', top: '30%', animationDelay: '1.7s' }} />
 
-                    {/* Shooting stars - triggered by state */}
                     <div className={`shooting-star s1 ${shootingStarActive ? 'active' : ''}`} />
                     <div className={`shooting-star s2 ${shootingStarActive ? 'active' : ''}`} style={{ animationDelay: '0.2s' }} />
 
@@ -209,7 +221,7 @@ const BackgroundScene = ({ condition, isNight }) => {
                 </div>
             )}
 
-            {/* Clouds floating - enhanced */}
+            {/* Clouds floating */}
             {(condition === 'clouds' || condition === 'rain' || condition === 'drizzle' || condition === 'thunderstorm') && (
                 <div className="floating-clouds">
                     <div className="float-cloud c1" />
@@ -218,7 +230,7 @@ const BackgroundScene = ({ condition, isNight }) => {
                 </div>
             )}
 
-            {/* Rain overlay - enhanced */}
+            {/* Rain overlay */}
             {(condition === 'rain' || condition === 'drizzle') && (
                 <div className="rain-overlay">
                     {[...Array(condition === 'rain' ? 20 : 10)].map((_, i) => (
@@ -241,7 +253,7 @@ const BackgroundScene = ({ condition, isNight }) => {
                 </div>
             )}
 
-            {/* Snow particles - enhanced */}
+            {/* Snow particles */}
             {condition === 'snow' && (
                 <div className="snow-overlay">
                     {[...Array(25)].map((_, i) => (
@@ -263,7 +275,7 @@ const BackgroundScene = ({ condition, isNight }) => {
                 </div>
             )}
 
-            {/* Rolling hills silhouette - 3 layers for depth */}
+            {/* Rolling hills silhouette */}
             <svg className="scene-ground" viewBox="0 0 400 80" preserveAspectRatio="xMidYMax slice">
                 <defs>
                     <linearGradient id="hillGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -279,11 +291,8 @@ const BackgroundScene = ({ condition, isNight }) => {
                         <stop offset="100%" stopColor="rgba(50, 70, 90, 0.5)" />
                     </linearGradient>
                 </defs>
-                {/* Far hills - lightest */}
                 <path d="M0 80 Q60 50 120 60 T240 45 T360 55 T400 50 L400 80 Z" fill="url(#hillGrad1)" />
-                {/* Mid hills */}
                 <path d="M0 80 Q100 55 180 65 T320 52 T400 62 L400 80 Z" fill="url(#hillGrad2)" />
-                {/* Near hills - darkest */}
                 <path d="M0 80 Q50 68 120 72 T260 65 T400 75 L400 80 Z" fill="url(#hillGrad3)" />
             </svg>
 
@@ -300,138 +309,206 @@ const BackgroundScene = ({ condition, isNight }) => {
     );
 };
 
+// Map Open-Meteo weather codes to conditions
+const mapWeatherCode = (code) => {
+    if (code === 0) return 'clear';
+    if ([1, 2, 3].includes(code)) return 'clouds';
+    if ([45, 48].includes(code)) return 'mist';
+    if ([51, 53, 55, 56, 57].includes(code)) return 'drizzle';
+    if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return 'rain';
+    if ([71, 73, 75, 77, 85, 86].includes(code)) return 'snow';
+    if ([95, 96, 99].includes(code)) return 'thunderstorm';
+    return 'clouds';
+};
+
+const getWeatherDescription = (code) => {
+    const descriptions = {
+        0: 'Clear Sky',
+        1: 'Mainly Clear',
+        2: 'Partly Cloudy',
+        3: 'Overcast',
+        45: 'Foggy',
+        48: 'Depositing Rime Fog',
+        51: 'Light Drizzle',
+        53: 'Moderate Drizzle',
+        55: 'Dense Drizzle',
+        56: 'Light Freezing Drizzle',
+        57: 'Dense Freezing Drizzle',
+        61: 'Slight Rain',
+        63: 'Moderate Rain',
+        65: 'Heavy Rain',
+        66: 'Light Freezing Rain',
+        67: 'Heavy Freezing Rain',
+        71: 'Slight Snow',
+        73: 'Moderate Snow',
+        75: 'Heavy Snow',
+        77: 'Snow Grains',
+        80: 'Slight Rain Showers',
+        81: 'Moderate Rain Showers',
+        82: 'Violent Rain Showers',
+        85: 'Slight Snow Showers',
+        86: 'Heavy Snow Showers',
+        95: 'Thunderstorm',
+        96: 'Thunderstorm with Slight Hail',
+        99: 'Thunderstorm with Heavy Hail'
+    };
+    return descriptions[code] || 'Unknown';
+};
+
+// Default fallback weather
+const DEFAULT_WEATHER = {
+    temp: 22,
+    condition: 'clear',
+    description: 'Clear Sky',
+    humidity: 65,
+    windSpeed: 12,
+    pressure: 1013,
+    feelsLike: 21
+};
+
+const DEFAULT_LOCATION = { city: 'Your City', country: '' };
+
 function WeatherCard() {
     const [weather, setWeather] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [location, setLocation] = useState({ city: 'Loading...', country: '' });
     const [isTransitioning, setIsTransitioning] = useState(false);
 
+    const isMountedRef = useRef(true);
+    const abortControllerRef = useRef(null);
+
+    useEffect(() => {
+        isMountedRef.current = true;
+        return () => {
+            isMountedRef.current = false;
+            // Cancel any pending requests on unmount
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+        };
+    }, []);
+
     const fetchWeather = useCallback(async (lat, lon) => {
+        // Cancel previous request if exists
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+
+        // Create new abort controller
+        abortControllerRef.current = new AbortController();
+        const signal = abortControllerRef.current.signal;
+
         try {
-            // Using Open-Meteo API (free, no API key required, reliable)
             const weatherRes = await fetch(
-                `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,surface_pressure,wind_speed_10m&timezone=auto`
+                `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,surface_pressure,wind_speed_10m&timezone=auto`,
+                { signal }
             );
 
             if (!weatherRes.ok) throw new Error('Weather fetch failed');
 
             const weatherData = await weatherRes.json();
-            const current = weatherData.current;
+            const current = weatherData?.current;
 
-            // Reverse geocode for city name (use English names)
-            const geoRes = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&accept-language=en`
-            );
-            const geoData = await geoRes.json();
-            const cityName = geoData.address?.city || geoData.address?.town || geoData.address?.village || geoData.address?.state || 'Unknown';
-            const countryName = geoData.address?.country || '';
+            if (!current || !isMountedRef.current) {
+                throw new Error('Invalid weather data');
+            }
+
+            // Reverse geocode for city name
+            let cityName = 'Your City';
+            let countryName = '';
+
+            try {
+                const geoRes = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&accept-language=en`,
+                    { signal }
+                );
+                const geoData = await geoRes.json();
+                cityName = geoData?.address?.city || geoData?.address?.town || geoData?.address?.village || geoData?.address?.state || 'Your City';
+                countryName = geoData?.address?.country || '';
+            } catch {
+                // Use default location on geo error
+            }
+
+            if (!isMountedRef.current) return;
 
             setIsTransitioning(true);
+
             setTimeout(() => {
+                if (!isMountedRef.current) return;
+
                 setWeather({
-                    temp: Math.round(current.temperature_2m),
+                    temp: Math.round(current.temperature_2m || 0),
                     condition: mapWeatherCode(current.weather_code),
                     description: getWeatherDescription(current.weather_code),
-                    humidity: Math.round(current.relative_humidity_2m),
-                    windSpeed: Math.round(current.wind_speed_10m),
-                    pressure: Math.round(current.surface_pressure),
-                    feelsLike: Math.round(current.apparent_temperature)
+                    humidity: Math.round(current.relative_humidity_2m || 0),
+                    windSpeed: Math.round(current.wind_speed_10m || 0),
+                    pressure: Math.round(current.surface_pressure || 0),
+                    feelsLike: Math.round(current.apparent_temperature || 0)
                 });
-                setLocation({
-                    city: cityName,
-                    country: countryName
-                });
+                setLocation({ city: cityName, country: countryName });
                 setLoading(false);
-                setError(null);
-                setTimeout(() => setIsTransitioning(false), 300);
+
+                setTimeout(() => {
+                    if (isMountedRef.current) {
+                        setIsTransitioning(false);
+                    }
+                }, 300);
             }, 150);
         } catch (err) {
-            console.error('Weather fetch error:', err);
-            // Fallback to demo data
-            setWeather({
-                temp: 22,
-                condition: 'clear',
-                description: 'Clear Sky',
-                humidity: 65,
-                windSpeed: 12,
-                pressure: 1013,
-                feelsLike: 21
-            });
-            setLocation({ city: 'Your City', country: '' });
-            setLoading(false);
+            // Check if this was an abort
+            if (err.name === 'AbortError') {
+                return;
+            }
+
+            // Fallback to default data on any error
+            if (isMountedRef.current) {
+                setWeather(DEFAULT_WEATHER);
+                setLocation(DEFAULT_LOCATION);
+                setLoading(false);
+            }
         }
     }, []);
 
-    // Map Open-Meteo weather codes to conditions
-    // See: https://open-meteo.com/en/docs#weathervariables
-    const mapWeatherCode = (code) => {
-        if (code === 0) return 'clear';
-        if ([1, 2, 3].includes(code)) return 'clouds';
-        if ([45, 48].includes(code)) return 'mist';
-        if ([51, 53, 55, 56, 57].includes(code)) return 'drizzle';
-        if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return 'rain';
-        if ([71, 73, 75, 77, 85, 86].includes(code)) return 'snow';
-        if ([95, 96, 99].includes(code)) return 'thunderstorm';
-        return 'clouds';
-    };
-
-    const getWeatherDescription = (code) => {
-        const descriptions = {
-            0: 'Clear Sky',
-            1: 'Mainly Clear',
-            2: 'Partly Cloudy',
-            3: 'Overcast',
-            45: 'Foggy',
-            48: 'Depositing Rime Fog',
-            51: 'Light Drizzle',
-            53: 'Moderate Drizzle',
-            55: 'Dense Drizzle',
-            56: 'Light Freezing Drizzle',
-            57: 'Dense Freezing Drizzle',
-            61: 'Slight Rain',
-            63: 'Moderate Rain',
-            65: 'Heavy Rain',
-            66: 'Light Freezing Rain',
-            67: 'Heavy Freezing Rain',
-            71: 'Slight Snow',
-            73: 'Moderate Snow',
-            75: 'Heavy Snow',
-            77: 'Snow Grains',
-            80: 'Slight Rain Showers',
-            81: 'Moderate Rain Showers',
-            82: 'Violent Rain Showers',
-            85: 'Slight Snow Showers',
-            86: 'Heavy Snow Showers',
-            95: 'Thunderstorm',
-            96: 'Thunderstorm with Slight Hail',
-            99: 'Thunderstorm with Heavy Hail'
-        };
-        return descriptions[code] || 'Unknown';
-    };
-
     useEffect(() => {
-        // Try to get user location
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    fetchWeather(pos.coords.latitude, pos.coords.longitude);
-                },
-                () => {
-                    // Fallback to default location
-                    fetchWeather(28.6139, 77.2090); // New Delhi
-                }
-            );
-        } else {
-            fetchWeather(28.6139, 77.2090);
-        }
+        const initWeather = () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        if (isMountedRef.current) {
+                            fetchWeather(pos.coords.latitude, pos.coords.longitude);
+                        }
+                    },
+                    () => {
+                        // Fallback to default location on geolocation error
+                        if (isMountedRef.current) {
+                            fetchWeather(28.6139, 77.2090);
+                        }
+                    },
+                    { timeout: 5000, enableHighAccuracy: false }
+                );
+            } else {
+                fetchWeather(28.6139, 77.2090);
+            }
+        };
+
+        initWeather();
 
         // Refresh every 10 minutes
         const interval = setInterval(() => {
+            if (!isMountedRef.current) return;
+
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
-                    (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude),
-                    () => fetchWeather(28.6139, 77.2090)
+                    (pos) => {
+                        if (isMountedRef.current) {
+                            fetchWeather(pos.coords.latitude, pos.coords.longitude);
+                        }
+                    },
+                    () => {
+                        if (isMountedRef.current) {
+                            fetchWeather(28.6139, 77.2090);
+                        }
+                    }
                 );
             }
         }, 600000);
@@ -470,7 +547,7 @@ function WeatherCard() {
             <div className="weather-content">
                 {/* City name at top */}
                 <div className="weather-city-label">
-                    {location.city}
+                    {location.city || 'Your City'}
                 </div>
 
                 {/* Top section: Icon + Condition */}
@@ -478,12 +555,12 @@ function WeatherCard() {
                     <div className="weather-icon-wrapper">
                         <IconComponent />
                     </div>
-                    <span className="weather-condition">{weather?.description}</span>
+                    <span className="weather-condition">{weather?.description || 'Unknown'}</span>
                 </div>
 
                 {/* Temperature */}
                 <div className="weather-temp">
-                    <span className="temp-value">{weather?.temp}</span>
+                    <span className="temp-value">{weather?.temp ?? '--'}</span>
                     <span className="temp-unit">°C</span>
                 </div>
 
@@ -493,7 +570,7 @@ function WeatherCard() {
                         <svg className="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2" />
                         </svg>
-                        <span className="stat-value">{weather?.windSpeed}</span>
+                        <span className="stat-value">{weather?.windSpeed ?? '--'}</span>
                         <span className="stat-label">km/h</span>
                     </div>
                     <div className="stat-divider" />
@@ -503,7 +580,7 @@ function WeatherCard() {
                             <line x1="12" y1="8" x2="12" y2="12" />
                             <line x1="12" y1="12" x2="16" y2="12" />
                         </svg>
-                        <span className="stat-value">{weather?.pressure}</span>
+                        <span className="stat-value">{weather?.pressure ?? '--'}</span>
                         <span className="stat-label">hPa</span>
                     </div>
                     <div className="stat-divider" />
@@ -511,7 +588,7 @@ function WeatherCard() {
                         <svg className="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
                         </svg>
-                        <span className="stat-value">{weather?.humidity}</span>
+                        <span className="stat-value">{weather?.humidity ?? '--'}</span>
                         <span className="stat-label">%</span>
                     </div>
                 </div>

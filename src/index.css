@@ -70,3 +70,26 @@ a {
     background: var(--primary-50);
     color: var(--text);
 }
+
+/* ========================================
+   CRITICAL BOOT STYLES
+   ======================================== */
+
+/* Ensure body has background during boot */
+body {
+    background: var(--bg, #fafafa);
+}
+
+/* Prevent flash of unstyled content */
+#root {
+    min-height: 100vh;
+    background: var(--bg, #fafafa);
+}
+
+/* Initial opacity for smooth fade-in */
+#root:empty::before {
+    content: '';
+    display: block;
+    min-height: 100vh;
+    background: var(--bg, #fafafa);
+}
