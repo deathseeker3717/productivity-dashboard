@@ -80,7 +80,7 @@
     background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
     border-radius: 16px;
     padding: 16px 20px;
-    min-width: 160px;
+    min-width: 170px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -223,7 +223,7 @@
    ======================================== */
 
 .skeleton-sidebar {
-    width: 160px;
+    width: 170px;
     background: var(--bg-card, #fff);
     border-right: 1px solid var(--border, #e5e7eb);
     padding: 20px 16px;
@@ -320,7 +320,7 @@
 
 .skeleton-main-content {
     flex: 1;
-    margin-left: 160px;
+    margin-left: 170px;
     padding: 24px 40px;
 }
 

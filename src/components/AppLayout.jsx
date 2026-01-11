@@ -17,6 +17,7 @@ import Sidebar from './Sidebar';
 import Dashboard from './Dashboard';
 import NotificationPanel from './NotificationPanel';
 import UserProfile from './UserProfile';
+import GlobalSearch from './GlobalSearch';
 import { SkeletonDashboard, SkeletonChart, SkeletonHeatmap, SkeletonTaskList } from './SkeletonUI';
 import '../App.css';
 
@@ -206,14 +207,7 @@ function AppLayout() {
             <main className="main-content">
                 {/* Search Bar */}
                 <div className="top-bar">
-                    <div className="search-container">
-                        <span className="search-icon"><SearchIcon /></span>
-                        <input
-                            type="text"
-                            placeholder={`${placeholderText}${cursorVisible ? '|' : ' '}`}
-                            className="search-input typewriter"
-                        />
-                    </div>
+                    <GlobalSearch />
                     <div className="top-actions">
                         <button
                             className="notification-btn"

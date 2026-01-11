@@ -94,7 +94,7 @@ function TodayCockpit() {
     const status = getPerformanceStatus(todayProgress, yesterdayData.progress, weeklyAverage);
 
     // Time display
-    const timeDisplay = format(currentTime, 'HH:mm');
+    const timeDisplay = format(currentTime, 'h:mm a');
     const dateDisplay = format(currentTime, 'EEEE, MMMM d');
 
     return (

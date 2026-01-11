@@ -62,6 +62,19 @@ const getWeatherTheme = (condition, isNight) => {
     };
 
     const key = condition?.toLowerCase() || 'default';
+
+    // Check for evening time (5pm-7pm) - warm sunset colors
+    const hour = new Date().getHours();
+    const isEvening = hour >= 17 && hour < 19;
+
+    if (key === 'clear' && isEvening && !isNight) {
+        return {
+            gradient: 'linear-gradient(135deg, #FF7E5F 0%, #FEB47B 50%, #FFCB8E 100%)',
+            accent: '#FF6B35',
+            icon: 'sun'
+        };
+    }
+
     return themes[key] || themes.default;
 };
 
@@ -69,16 +82,16 @@ const getWeatherTheme = (condition, isNight) => {
 const WeatherIcons = {
     sun: () => (
         <svg viewBox="0 0 64 64" className="weather-icon sun-icon">
-            <circle cx="32" cy="32" r="14" fill="#FFD93D" />
+            <circle cx="32" cy="32" r="18" fill="#FFD93D" />
             <g stroke="#FFD93D" strokeWidth="3" strokeLinecap="round">
-                <line x1="32" y1="6" x2="32" y2="14" />
-                <line x1="32" y1="50" x2="32" y2="58" />
-                <line x1="6" y1="32" x2="14" y2="32" />
-                <line x1="50" y1="32" x2="58" y2="32" />
-                <line x1="13.5" y1="13.5" x2="19" y2="19" />
-                <line x1="45" y1="45" x2="50.5" y2="50.5" />
-                <line x1="13.5" y1="50.5" x2="19" y2="45" />
-                <line x1="45" y1="19" x2="50.5" y2="13.5" />
+                <line x1="32" y1="4" x2="32" y2="12" />
+                <line x1="32" y1="52" x2="32" y2="60" />
+                <line x1="4" y1="32" x2="12" y2="32" />
+                <line x1="52" y1="32" x2="60" y2="32" />
+                <line x1="11" y1="11" x2="17" y2="17" />
+                <line x1="47" y1="47" x2="53" y2="53" />
+                <line x1="11" y1="53" x2="17" y2="47" />
+                <line x1="47" y1="17" x2="53" y2="11" />
             </g>
         </svg>
     ),

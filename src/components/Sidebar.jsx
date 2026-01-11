@@ -5,7 +5,6 @@
  * - Dark theme matching the design
  * - Rotating animated clock/progress logo
  * - Menu navigation
- * - Promotional widget
  * - Settings at bottom
  */
 
@@ -128,12 +127,6 @@ function Sidebar() {
                 </div>
             </nav>
 
-            {/* Promo Card */}
-            <div className="promo-card">
-                <h4>Be 137% more productive</h4>
-                <p>Track all your tasks, notes, and goals.</p>
-                <button className="promo-btn">Upgrade</button>
-            </div>
 
             {/* Settings */}
             <div className="sidebar-footer">

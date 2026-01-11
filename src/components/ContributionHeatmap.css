@@ -27,6 +27,7 @@
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 12px;
+    width: 100%;
 }
 
 .heatmap-title {
