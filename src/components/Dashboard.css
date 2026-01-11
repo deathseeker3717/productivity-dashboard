@@ -7,7 +7,7 @@
 .dashboard {
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 28px;
 }
 
 /* ========================================
@@ -96,9 +96,10 @@
 }
 
 .section-header h2 {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 600;
     color: var(--text);
+    letter-spacing: -0.3px;
 }
 
 /* Stats Grid - Animated Cards */
@@ -112,7 +113,7 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 20px;
+    padding: 20px 24px;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 12px;
@@ -190,11 +191,12 @@
 }
 
 .stat-value {
-    font-size: 24px;
+    font-size: 26px;
     font-weight: 700;
     color: var(--text);
     line-height: 1;
     transition: transform 0.3s ease;
+    letter-spacing: -0.5px;
 }
 
 .stat-card:hover .stat-value {
@@ -346,7 +348,7 @@
 
 .dashboard-grid {
     display: grid;
-    grid-template-columns: 1fr 320px;
+    grid-template-columns: 1fr 300px;
     gap: 24px;
     animation: fadeIn 0.5s ease-out 0.2s backwards;
 }

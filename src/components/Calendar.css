@@ -76,7 +76,7 @@
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 20px;
+    padding: 24px;
     animation: scaleIn 0.4s ease-out;
 }
 

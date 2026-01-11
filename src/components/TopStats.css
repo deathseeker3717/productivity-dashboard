@@ -51,9 +51,9 @@
 .top-stats {
     display: flex;
     align-items: center;
-    gap: 32px;
-    padding: 16px 0;
-    margin-bottom: 24px;
+    gap: 28px;
+    padding: 18px 0;
+    margin-bottom: 20px;
     border-bottom: 1px solid var(--border);
     animation: fadeInSlide 0.5s ease-out;
 }
@@ -155,10 +155,11 @@
 }
 
 .stat-value {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 700;
     color: var(--text);
     transition: transform 0.2s ease;
+    letter-spacing: -0.3px;
 }
 
 .stat-widget:hover .stat-value {

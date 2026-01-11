@@ -135,7 +135,13 @@ function TopStats() {
                 </div>
                 <div className="stat-info">
                     <span className="stat-label">Day Streak</span>
-                    <span className="stat-sublabel">Keep it going!</span>
+                    <span className="stat-sublabel">
+                        {calculateStreak === 0 ? "Start your streak!" :
+                            calculateStreak <= 3 ? "Great start!" :
+                                calculateStreak <= 7 ? "Keep it going!" :
+                                    calculateStreak <= 14 ? "You're on fire!" :
+                                        calculateStreak <= 30 ? "Unstoppable!" : "Legendary!"}
+                    </span>
                 </div>
             </div>
 

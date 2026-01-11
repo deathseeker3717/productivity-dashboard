@@ -223,6 +223,54 @@ h4 {
     font-size: var(--text-xs);
 }
 
+/* Semantic Color Utilities */
+.text-success {
+    color: var(--success);
+}
+
+.text-warning {
+    color: var(--warning);
+}
+
+.text-danger {
+    color: var(--danger);
+}
+
+.bg-success-light {
+    background: var(--success-light);
+}
+
+.bg-warning-light {
+    background: var(--warning-light);
+}
+
+.bg-danger-light {
+    background: var(--danger-light);
+}
+
+/* Section Header - Professional Dashboard Style */
+.section-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-5);
+}
+
+.section-title h2,
+.section-title h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    color: var(--text);
+    margin: 0;
+}
+
+.section-title .subtitle {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    font-weight: var(--font-normal);
+}
+
 /* ========================================
    BUTTONS - Minimal & Quiet
    ======================================== */

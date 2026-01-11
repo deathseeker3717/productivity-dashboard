@@ -58,16 +58,46 @@ const ProgressRing = ({ progress, size = 80, strokeWidth = 6, className }) => {
 };
 
 // Streak Fire SVG
+// Streak Fire SVG (Premium Animated)
 const FireIcon = () => (
-    <svg className="fire-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2C12 2 8.5 6 8.5 10C8.5 11.5 9 13 10 14C9 12 10 10 12 9C14 10 15 12 14 14C15 13 15.5 11.5 15.5 10C15.5 6 12 2 12 2Z" fill="#f59e0b" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M12 22C15.866 22 19 18.866 19 15C19 11 15 8 12 5C9 8 5 11 5 15C5 18.866 8.134 22 12 22Z" fill="url(#fireGradient)" stroke="#ef4444" strokeWidth="1.5" />
+    <svg className="duolingo-flame" viewBox="0 0 48 48" style={{ width: '28px', height: '28px' }}>
         <defs>
-            <linearGradient id="fireGradient" x1="12" y1="5" x2="12" y2="22" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#fbbf24" />
-                <stop offset="1" stopColor="#ef4444" />
+            <linearGradient id="flameGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stopColor="#FF9600" />
+                <stop offset="50%" stopColor="#FF6B00" />
+                <stop offset="100%" stopColor="#FF4500" />
             </linearGradient>
+            <filter id="flameGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="2" result="blur" />
+                <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                </feMerge>
+            </filter>
         </defs>
+        <circle className="flame-particle p1" cx="24" cy="44" r="3" />
+        <circle className="flame-particle p2" cx="15" cy="43" r="2.5" />
+        <circle className="flame-particle p3" cx="33" cy="43" r="2.5" />
+        <circle className="flame-particle p4" cx="10" cy="44" r="2" />
+        <circle className="flame-particle p5" cx="38" cy="44" r="2" />
+        <path
+            className="flame-body"
+            d="M24 4 C24 4 6 18 6 30 C6 40 14 46 24 46 C34 46 42 40 42 30 C42 18 24 4 24 4 Z"
+            fill="url(#flameGradient)"
+            filter="url(#flameGlow)"
+        />
+        <path
+            className="flame-inner"
+            d="M24 16 C24 16 12 26 12 34 C12 40 17 44 24 44 C31 44 36 40 36 34 C36 26 24 16 24 16 Z"
+            fill="#FFD93D"
+            opacity="0.85"
+        />
+        <ellipse
+            className="flame-core"
+            cx="24" cy="38" rx="8" ry="6"
+            fill="#FFFACD"
+            opacity="0.95"
+        />
     </svg>
 );
 

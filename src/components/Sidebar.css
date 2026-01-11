@@ -8,9 +8,9 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 180px;
+    width: 160px;
     height: 100vh;
-    background: #1a1b2e;
+    background: #1e1f2e;
     color: white;
     display: flex;
     flex-direction: column;

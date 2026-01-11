@@ -132,8 +132,8 @@
 /* Sun rays for clear weather */
 .sun-rays {
     position: absolute;
-    top: -30px;
-    right: -30px;
+    top: -50px;
+    right: -50px;
     width: 120px;
     height: 120px;
 }
@@ -270,7 +270,7 @@
 .moon-container {
     position: absolute;
     top: 25px;
-    right: 140px;
+    right: 90px;
     width: 45px;
     height: 45px;
     display: flex;
@@ -683,7 +683,7 @@
 .weather-icon-wrapper {
     width: 56px;
     height: 56px;
-    background: white;
+    background: var(--bg-card);
     border-radius: 14px;
     display: flex;
     align-items: center;

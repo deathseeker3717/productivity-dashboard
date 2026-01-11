@@ -9,12 +9,10 @@
    ======================================== */
 
 .skeleton {
-    background: linear-gradient(
-        90deg,
-        var(--bg-hover, #f0f0f0) 25%,
-        var(--bg-card, #e8e8e8) 50%,
-        var(--bg-hover, #f0f0f0) 75%
-    );
+    background: linear-gradient(90deg,
+            var(--bg-hover, #f0f0f0) 25%,
+            var(--bg-card, #e8e8e8) 50%,
+            var(--bg-hover, #f0f0f0) 75%);
     background-size: 200% 100%;
     animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
@@ -23,6 +21,7 @@
     0% {
         background-position: 200% 0;
     }
+
     100% {
         background-position: -200% 0;
     }
@@ -81,7 +80,7 @@
     background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
     border-radius: 16px;
     padding: 16px 20px;
-    min-width: 180px;
+    min-width: 160px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -123,12 +122,10 @@
 
 .skeleton-bar {
     flex: 1;
-    background: linear-gradient(
-        90deg,
-        var(--bg-hover, #f0f0f0) 25%,
-        var(--bg-card, #e8e8e8) 50%,
-        var(--bg-hover, #f0f0f0) 75%
-    );
+    background: linear-gradient(90deg,
+            var(--bg-hover, #f0f0f0) 25%,
+            var(--bg-card, #e8e8e8) 50%,
+            var(--bg-hover, #f0f0f0) 75%);
     background-size: 200% 100%;
     animation: skeleton-pulse 1.5s ease-in-out infinite;
     border-radius: 4px 4px 0 0;
@@ -226,7 +223,7 @@
    ======================================== */
 
 .skeleton-sidebar {
-    width: 180px;
+    width: 160px;
     background: var(--bg-card, #fff);
     border-right: 1px solid var(--border, #e5e7eb);
     padding: 20px 16px;
@@ -293,7 +290,7 @@
     gap: 24px;
 }
 
-.skeleton-dashboard-header > div:first-child {
+.skeleton-dashboard-header>div:first-child {
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -323,7 +320,7 @@
 
 .skeleton-main-content {
     flex: 1;
-    margin-left: 180px;
+    margin-left: 160px;
     padding: 24px 40px;
 }
 
@@ -332,12 +329,10 @@
    ======================================== */
 
 .dark-theme .skeleton {
-    background: linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0.05) 25%,
-        rgba(255, 255, 255, 0.1) 50%,
-        rgba(255, 255, 255, 0.05) 75%
-    );
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.05) 25%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.05) 75%);
     background-size: 200% 100%;
 }
 

@@ -27,7 +27,7 @@
 
 .analytics-controls {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     gap: 24px;
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -82,7 +82,7 @@
     cursor: pointer;
     font-size: 14px;
     color: var(--text-secondary);
-    padding: 8px 0;
+    padding: 10px 0;
 }
 
 .compare-toggle input[type="checkbox"] {
@@ -98,7 +98,7 @@
 
 .analytics-summary {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 16px;
 }
 
@@ -121,11 +121,12 @@
 }
 
 .summary-value {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 700;
     color: var(--text);
     line-height: 1;
     margin-bottom: 8px;
+    letter-spacing: -0.5px;
 }
 
 .summary-label {
@@ -165,7 +166,7 @@
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 20px;
+    padding: 24px;
     transition: all 0.2s ease;
 }
 

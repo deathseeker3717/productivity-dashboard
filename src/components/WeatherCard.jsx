@@ -254,7 +254,7 @@ const BackgroundScene = ({ condition, isNight }) => {
                     if (isMountedRef.current) {
                         setShootingStarActive(false);
                     }
-                }, 700);
+                }, 2500);
             }
         };
 
@@ -298,7 +298,7 @@ const BackgroundScene = ({ condition, isNight }) => {
                     <div className="star large" style={{ left: '80%', top: '30%', animationDelay: '1.7s' }} />
 
                     <div className={`shooting-star s1 ${shootingStarActive ? 'active' : ''}`} />
-                    <div className={`shooting-star s2 ${shootingStarActive ? 'active' : ''}`} style={{ animationDelay: '0.2s' }} />
+                    <div className={`shooting-star s2 ${shootingStarActive ? 'active' : ''}`} style={{ animationDelay: '1.2s' }} />
 
                     {/* Dynamic Moon Phase */}
                     {condition === 'clear' && (
