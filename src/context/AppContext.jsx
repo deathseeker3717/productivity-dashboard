@@ -36,21 +36,14 @@ const GOAL_PROGRESS_TYPES = ['percentage', 'count', 'time'];
 // ============================================
 
 const getTodayDate = () => {
-    try {
-        return new Date().toISOString().split('T')[0];
-    } catch {
-        return new Date().toLocaleDateString('en-CA');
-    }
+    // Use local timezone (en-CA format gives YYYY-MM-DD)
+    // Do NOT use toISOString() as it returns UTC, causing timezone issues
+    return new Date().toLocaleDateString('en-CA');
 };
 
 const getCurrentMonth = () => {
-    try {
-        return getTodayDate().slice(0, 7);
-    } catch {
-        // Fallback also uses UTC for consistency
-        const now = new Date();
-        return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
-    }
+    // Derive from getTodayDate to ensure consistent local timezone handling
+    return getTodayDate().slice(0, 7);
 };
 
 const getMonthFromDate = (dateStr) => {
@@ -208,8 +201,7 @@ export function AppProvider({ children }) {
         if (!isMountedRef.current) return;
         const today = getTodayDate();
         const month = getCurrentMonth();
-        // Use UTC year to match getTodayDate() which uses toISOString()
-        const year = new Date().getUTCFullYear();
+        const year = new Date().getFullYear();
         setViewDate(today);
         setViewMonth(month);
         setViewYear(year);
@@ -729,7 +721,8 @@ export function AppProvider({ children }) {
             checkDate.setDate(checkDate.getDate() - 1);
 
             while (streak < 365) {
-                const dateStr = checkDate.toISOString().split('T')[0];
+                // Use local timezone format instead of toISOString (which is UTC)
+                const dateStr = checkDate.toLocaleDateString('en-CA');
                 const month = getMonthFromDate(dateStr);
                 const dayData = data[month]?.days[dateStr];
 
