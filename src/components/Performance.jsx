@@ -23,7 +23,7 @@ function Performance() {
         return weeklyProgress.map(day => ({
             label: day.day,
             value: day.progress,
-            isToday: day.date === new Date().toISOString().split('T')[0]
+            isToday: day.date === new Date().toISOString().split('T')[0] // UTC date
         }));
     }, [weeklyProgress]);
 

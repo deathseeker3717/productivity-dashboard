@@ -47,8 +47,9 @@ const getCurrentMonth = () => {
     try {
         return getTodayDate().slice(0, 7);
     } catch {
+        // Fallback also uses UTC for consistency
         const now = new Date();
-        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
     }
 };
 
@@ -207,7 +208,8 @@ export function AppProvider({ children }) {
         if (!isMountedRef.current) return;
         const today = getTodayDate();
         const month = getCurrentMonth();
-        const year = new Date().getFullYear();
+        // Use UTC year to match getTodayDate() which uses toISOString()
+        const year = new Date().getUTCFullYear();
         setViewDate(today);
         setViewMonth(month);
         setViewYear(year);
@@ -368,7 +370,8 @@ export function AppProvider({ children }) {
         setupShownForMonthRef.current.add(currentMonth);
 
         try {
-            const dayOfMonth = new Date(currentDate).getDate();
+            // Use UTC to check day of month since currentDate is in UTC format
+            const dayOfMonth = new Date(currentDate + 'T00:00:00Z').getUTCDate();
             const isFirstDayOfMonth = dayOfMonth === 1;
 
             // Use functional check to avoid stale closure
@@ -426,25 +429,26 @@ export function AppProvider({ children }) {
     }, [currentDate, lockDay]);
 
     useEffect(() => {
-        const scheduleMidnight = () => {
+        const scheduleUTCMidnight = () => {
             try {
                 const now = new Date();
-                const midnight = new Date();
-                midnight.setHours(24, 0, 0, 0);
-                const msUntilMidnight = midnight.getTime() - now.getTime();
+                // Calculate next UTC midnight (5:30 AM IST)
+                const utcMidnight = new Date();
+                utcMidnight.setUTCHours(24, 0, 0, 0);
+                const msUntilUTCMidnight = utcMidnight.getTime() - now.getTime();
 
                 midnightTimeoutRef.current = setTimeout(() => {
                     if (isMountedRef.current) {
                         handleMidnight();
-                        scheduleMidnight();
+                        scheduleUTCMidnight();
                     }
-                }, msUntilMidnight);
+                }, msUntilUTCMidnight);
             } catch {
                 // Silent fail
             }
         };
 
-        scheduleMidnight();
+        scheduleUTCMidnight();
         return () => {
             if (midnightTimeoutRef.current) {
                 clearTimeout(midnightTimeoutRef.current);
@@ -878,9 +882,12 @@ export function AppProvider({ children }) {
 
     const isLocked = useCallback((dateStr) => {
         if (!dateStr) return true;
+        // Always use fresh today's date to avoid stale state after midnight
+        const actualToday = getTodayDate();
+        if (dateStr === actualToday) return false;
         if (dateStr === currentDate) return false;
         const month = getMonthFromDate(dateStr);
-        return data[month]?.days[dateStr]?.locked || dateStr < currentDate;
+        return data[month]?.days[dateStr]?.locked || dateStr < actualToday;
     }, [data, currentDate]);
 
     // ============================================
