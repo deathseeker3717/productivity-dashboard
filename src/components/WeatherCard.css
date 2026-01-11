@@ -104,6 +104,16 @@
     background: linear-gradient(180deg, #0D1B2A 0%, #1B263B 50%, #415A77 100%);
 }
 
+.weather-bg-clear.dawn {
+    background: linear-gradient(180deg, #F3E5F5 0%, #F8BBD0 30%, #FFCC80 60%, #BBDEFB 100%);
+    animation: dawnGlow 10s ease-in-out infinite alternate;
+}
+
+.weather-bg-clear.dusk {
+    background: linear-gradient(180deg, #4A148C 0%, #7B1FA2 30%, #FF6F00 70%, #FFD54F 100%);
+    animation: duskFade 15s ease-in-out infinite alternate;
+}
+
 .weather-bg-clouds {
     background: linear-gradient(180deg, #B0BEC5 0%, #CFD8DC 50%, #ECEFF1 100%);
 }
@@ -129,24 +139,76 @@
     background: linear-gradient(135deg, rgba(255, 249, 230, 0.9) 0%, rgba(254, 243, 205, 0.9) 100%);
 }
 
+@keyframes dawnGlow {
+    0% {
+        background-position: 50% 0%;
+    }
+
+    100% {
+        background-position: 50% 100%;
+    }
+}
+
+@keyframes duskFade {
+    0% {
+        filter: brightness(1);
+    }
+
+    100% {
+        filter: brightness(0.9);
+    }
+}
+
+
+/* Sun rays for clear weather */
 /* Sun rays for clear weather */
 .sun-rays {
     position: absolute;
-    top: -50px;
-    right: -50px;
-    width: 120px;
-    height: 120px;
+    top: -20px;
+    right: 80px;
+    width: 140px;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    /* Below text */
+}
+
+.sun-disk {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #FFD54F 0%, #FFB300 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(255, 179, 0, 0.4);
+    z-index: 2;
+    position: relative;
+}
+
+/* Enhancements for Dawn/Dusk Sun Position */
+.weather-scene.dawn .sun-rays {
+    top: 60%;
+    right: 80%;
+    transform: scale(0.8);
+    opacity: 0.8;
+}
+
+.weather-scene.dusk .sun-rays {
+    top: 60%;
+    right: 20%;
+    transform: scale(1.2);
 }
 
 .sun-ray {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 100px;
+    width: 120px;
     height: 3px;
-    background: linear-gradient(90deg, rgba(255, 236, 179, 0.8) 0%, transparent 100%);
+    background: linear-gradient(90deg, rgba(255, 213, 79, 0) 20%, rgba(255, 236, 179, 0.8) 50%, transparent 100%);
     transform-origin: left center;
     animation: sunRayPulse 3s ease-in-out infinite;
+    z-index: 1;
 }
 
 @keyframes sunRayPulse {
@@ -163,10 +225,30 @@
     }
 }
 
+
 /* Stars for night */
 .stars-container {
     position: absolute;
     inset: 0;
+    transition: opacity 1s ease;
+}
+
+/* Faint stars during Dusk */
+.weather-scene.dusk .stars-container .star {
+    opacity: 0.4;
+    animation: none;
+    /* No twinkling in dusk */
+}
+
+/* Very faint/No stars during Dawn (just moon visible) */
+.weather-scene.dawn .stars-container .star {
+    opacity: 0;
+}
+
+/* Moon visibility adjustments */
+.weather-scene.dawn .moon-container {
+    opacity: 0.6;
+    transform: scale(0.9);
 }
 
 .star {

@@ -245,7 +245,7 @@ const MoonPhaseSVG = ({ phase }) => {
 };
 
 // Enhanced Background Scene with dynamic weather effects
-const BackgroundScene = ({ condition, isNight }) => {
+const BackgroundScene = ({ condition, isNight, timePeriod }) => {
     const [shootingStarActive, setShootingStarActive] = useState(false);
     const isMountedRef = useRef(true);
 
@@ -281,10 +281,11 @@ const BackgroundScene = ({ condition, isNight }) => {
     }, [isNight]);
 
     return (
-        <div className={`weather-scene weather-bg-${condition || 'default'} ${isNight ? 'night' : 'day'}`}>
+        <div className={`weather-scene weather-bg-${condition || 'default'} ${timePeriod || (isNight ? 'night' : 'day')}`}>
             {/* Sun rays for clear weather */}
             {condition === 'clear' && !isNight && (
                 <div className="sun-rays">
+                    <div className="sun-disk" />
                     {[...Array(8)].map((_, i) => (
                         <div key={i} className="sun-ray" style={{
                             transform: `rotate(${i * 45}deg)`
@@ -293,8 +294,8 @@ const BackgroundScene = ({ condition, isNight }) => {
                 </div>
             )}
 
-            {/* Stars for night - fixed positions */}
-            {isNight && (
+            {/* Stars and Moon - Visible at Night, Dusk, and Dawn */}
+            {(isNight || timePeriod === 'dusk' || timePeriod === 'dawn') && (
                 <div className="stars-container">
                     <div className="star" style={{ left: '5%', top: '10%', animationDelay: '0s' }} />
                     <div className="star" style={{ left: '15%', top: '25%', animationDelay: '0.5s' }} />
@@ -310,10 +311,15 @@ const BackgroundScene = ({ condition, isNight }) => {
                     <div className="star large" style={{ left: '60%', top: '5%', animationDelay: '2.5s' }} />
                     <div className="star large" style={{ left: '80%', top: '30%', animationDelay: '1.7s' }} />
 
-                    <div className={`shooting-star s1 ${shootingStarActive ? 'active' : ''}`} />
-                    <div className={`shooting-star s2 ${shootingStarActive ? 'active' : ''}`} style={{ animationDelay: '1.2s' }} />
+                    {/* Shooting stars - Only at deep night */}
+                    {isNight && (
+                        <>
+                            <div className={`shooting-star s1 ${shootingStarActive ? 'active' : ''}`} />
+                            <div className={`shooting-star s2 ${shootingStarActive ? 'active' : ''}`} style={{ animationDelay: '1.2s' }} />
+                        </>
+                    )}
 
-                    {/* Dynamic Moon Phase */}
+                    {/* Dynamic Moon Phase - Visible in clear weather */}
                     {condition === 'clear' && (
                         <div className="moon-container">
                             <MoonPhaseSVG phase={getMoonPhase()} />
@@ -480,13 +486,54 @@ function WeatherCard() {
     const loading = weatherLoading;
     const location = weatherData?.location || DEFAULT_LOCATION;
 
-    // Check if night time (6pm - 6am)
-    const isNight = () => {
+    // Determine precise time period
+    const getTimePeriod = () => {
         const hour = new Date().getHours();
-        return hour < 6 || hour >= 18;
+        if (hour >= 5 && hour < 7) return 'dawn';   // 5 AM - 7 AM
+        if (hour >= 7 && hour < 17) return 'day';   // 7 AM - 5 PM
+        if (hour >= 17 && hour < 20) return 'dusk'; // 5 PM - 8 PM
+        return 'night';                             // 8 PM - 5 AM
     };
 
-    const theme = weather ? getWeatherTheme(weather.condition, isNight()) : getWeatherTheme('default', false);
+    const timePeriod = getTimePeriod();
+    const isNight = timePeriod === 'night'; // Legacy compatibility
+
+    // Enhanced theme selector
+    const getTheme = (condition, period) => {
+        const baseTheme = getWeatherTheme(condition, period === 'night');
+
+        // Overrides for specific time periods
+        if (period === 'dawn') {
+            if (condition === 'clear') {
+                return {
+                    gradient: 'linear-gradient(135deg, #FF9A8B 0%, #FF6A88 55%, #FF99AC 100%)',
+                    accent: '#FFD93D',
+                    icon: 'sun'
+                };
+            }
+            if (condition === 'clouds') {
+                return {
+                    gradient: 'linear-gradient(135deg, #FFDEE9 0%, #B5FFFC 100%)',
+                    accent: '#8BA4B4',
+                    icon: 'clouds'
+                };
+            }
+        }
+
+        if (period === 'dusk') {
+            if (condition === 'clear') {
+                return {
+                    gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', // Fallback, handled better in CSS
+                    accent: '#FF6B35',
+                    icon: 'sun' // Potentially a sunset icon in future
+                };
+            }
+        }
+
+        return baseTheme;
+    };
+
+    const theme = weather ? getTheme(weather.condition, timePeriod) : getWeatherTheme('default', false);
     const IconComponent = weather ? WeatherIcons[theme.icon] || WeatherIcons.clouds : WeatherIcons.clouds;
 
     if (loading) {
@@ -507,7 +554,7 @@ function WeatherCard() {
             className={`weather-card ${isTransitioning ? 'transitioning' : ''}`}
             style={{ background: theme.gradient }}
         >
-            <BackgroundScene condition={weather?.condition} isNight={isNight()} />
+            <BackgroundScene condition={weather?.condition} timePeriod={timePeriod} isNight={isNight} />
 
             <div className="weather-content">
                 {/* City name at top */}
