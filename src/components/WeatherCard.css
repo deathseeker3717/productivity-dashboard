@@ -10,20 +10,26 @@
     width: 400px;
     max-width: 100%;
     min-height: 280px;
-    border-radius: 24px;
-    background: linear-gradient(135deg, rgba(255, 249, 230, 0.25) 0%, rgba(254, 243, 205, 0.25) 100%);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 32px;
+    /* Softer, larger radius */
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-    transition: all 0.4s ease;
+    box-shadow:
+        0 10px 40px -10px rgba(0, 0, 0, 0.1),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    /* Inner glow */
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     cursor: pointer;
 }
 
 .weather-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px) scale(1.01);
+    box-shadow:
+        0 20px 50px -12px rgba(0, 0, 0, 0.15),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .weather-card.transitioning .weather-content {
@@ -92,51 +98,73 @@
     inset: 0;
     pointer-events: none;
     overflow: hidden;
-    transition: background 0.5s ease;
+    background-size: 200% 200%;
+    animation: gradientBreathe 15s ease infinite alternate;
 }
 
-/* Weather condition backgrounds */
+@keyframes gradientBreathe {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Premium Gradients */
+/* Clear Day: Soft Blue -> Warm Sun */
 .weather-bg-clear.day {
-    background: linear-gradient(180deg, #87CEEB 0%, #E0F7FA 40%, #FFF8E1 100%);
+    background-image: linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #76fab1 100%);
 }
 
+/* Clear Night: Deep Midnight Blue */
 .weather-bg-clear.night {
-    background: linear-gradient(180deg, #0D1B2A 0%, #1B263B 50%, #415A77 100%);
+    background-image: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
 }
 
+/* Clear Dawn: Pink/Purple/Orange Haze */
 .weather-bg-clear.dawn {
-    background: linear-gradient(180deg, #F3E5F5 0%, #F8BBD0 30%, #FFCC80 60%, #BBDEFB 100%);
-    animation: dawnGlow 10s ease-in-out infinite alternate;
+    background-image: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%);
 }
 
+/* Clear Dusk: Deep Orange/Purple */
 .weather-bg-clear.dusk {
-    background: linear-gradient(180deg, #4A148C 0%, #7B1FA2 30%, #FF6F00 70%, #FFD54F 100%);
-    animation: duskFade 15s ease-in-out infinite alternate;
+    background-image: linear-gradient(135deg, #9795f0 0%, #fbc8d4 100%);
 }
 
+/* Clouds: Sophisticated Grey/Blue */
 .weather-bg-clouds {
-    background: linear-gradient(180deg, #B0BEC5 0%, #CFD8DC 50%, #ECEFF1 100%);
+    background-image: linear-gradient(135deg, #d7d2cc 0%, #304352 100%);
 }
 
+/* Rain: Moody Slate/Greenish Grey */
 .weather-bg-rain,
 .weather-bg-drizzle {
-    background: linear-gradient(180deg, #546E7A 0%, #78909C 40%, #B0BEC5 80%, #CFD8DC 100%);
+    background-image: linear-gradient(135deg, #616161 0%, #9bc5c3 100%);
 }
 
+/* Thunderstorm: Intense Dark Purple/Navy */
 .weather-bg-thunderstorm {
-    background: linear-gradient(180deg, #1A237E 0%, #283593 30%, #3949AB 60%, #5C6BC0 100%);
+    background-image: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
 }
 
+/* Snow: Icy White/Blue */
 .weather-bg-snow {
-    background: linear-gradient(180deg, #ECEFF1 0%, #CFD8DC 40%, #B0BEC5 100%);
+    background-image: linear-gradient(135deg, #E6DADA 0%, #274046 100%);
 }
 
+/* Mist: Ethereal Grey/White */
 .weather-bg-mist {
-    background: linear-gradient(180deg, #FAFAFA 0%, #E0E0E0 50%, #BDBDBD 100%);
+    background-image: linear-gradient(135deg, #bdc2e8 0%, #e6dee9 100%);
 }
 
 .weather-bg-default {
-    background: linear-gradient(135deg, rgba(255, 249, 230, 0.9) 0%, rgba(254, 243, 205, 0.9) 100%);
+    background-image: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
 }
 
 @keyframes dawnGlow {
