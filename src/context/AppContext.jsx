@@ -35,14 +35,25 @@ const GOAL_PROGRESS_TYPES = ['percentage', 'count', 'time'];
 // PURE UTILITY FUNCTIONS
 // ============================================
 
+// Day reset hour (5:30 AM IST = 5.5 hours)
+// Before this time, we treat it as the previous day
+const DAY_RESET_HOUR = 5.5;
+
 const getTodayDate = () => {
-    // Use local timezone (en-CA format gives YYYY-MM-DD)
-    // Do NOT use toISOString() as it returns UTC, causing timezone issues
-    return new Date().toLocaleDateString('en-CA');
+    const now = new Date();
+    const currentHour = now.getHours() + now.getMinutes() / 60;
+
+    // If before 5:30 AM, use yesterday's date as the "logical" today
+    if (currentHour < DAY_RESET_HOUR) {
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        return yesterday.toLocaleDateString('en-CA');
+    }
+
+    return now.toLocaleDateString('en-CA');
 };
 
 const getCurrentMonth = () => {
-    // Derive from getTodayDate to ensure consistent local timezone handling
     return getTodayDate().slice(0, 7);
 };
 
@@ -421,26 +432,32 @@ export function AppProvider({ children }) {
     }, [currentDate, lockDay]);
 
     useEffect(() => {
-        const scheduleUTCMidnight = () => {
+        const scheduleDayReset = () => {
             try {
                 const now = new Date();
-                // Calculate next UTC midnight (5:30 AM IST)
-                const utcMidnight = new Date();
-                utcMidnight.setUTCHours(24, 0, 0, 0);
-                const msUntilUTCMidnight = utcMidnight.getTime() - now.getTime();
+                // Calculate next 5:30 AM IST
+                const nextReset = new Date();
+                nextReset.setHours(5, 30, 0, 0);
+
+                // If we're past 5:30 AM today, schedule for tomorrow
+                if (now >= nextReset) {
+                    nextReset.setDate(nextReset.getDate() + 1);
+                }
+
+                const msUntilReset = nextReset.getTime() - now.getTime();
 
                 midnightTimeoutRef.current = setTimeout(() => {
                     if (isMountedRef.current) {
                         handleMidnight();
-                        scheduleUTCMidnight();
+                        scheduleDayReset();
                     }
-                }, msUntilUTCMidnight);
+                }, msUntilReset);
             } catch {
                 // Silent fail
             }
         };
 
-        scheduleUTCMidnight();
+        scheduleDayReset();
         return () => {
             if (midnightTimeoutRef.current) {
                 clearTimeout(midnightTimeoutRef.current);
