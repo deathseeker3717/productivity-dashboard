@@ -933,7 +933,7 @@ export function AppProvider({ children }) {
     const fetchWeatherData = useCallback(async (lat, lon) => {
         try {
             const weatherRes = await fetch(
-                `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,surface_pressure,wind_speed_10m,is_day&timezone=auto`
+                `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,surface_pressure,wind_speed_10m&timezone=auto`
             );
             if (!weatherRes.ok) throw new Error('Weather fetch failed');
             const data = await weatherRes.json();
@@ -978,7 +978,6 @@ export function AppProvider({ children }) {
                     windSpeed: Math.round(current.wind_speed_10m || 0),
                     pressure: Math.round(current.surface_pressure || 0),
                     feelsLike: Math.round(current.apparent_temperature || 0),
-                    isDay: current.is_day !== 0, // 1 = Day, 0 = Night
                     location: { city: cityName, country: countryName },
                     fetchedAt: Date.now()
                 });
